@@ -47,7 +47,8 @@ standards, and the per-plugin release model before contributing.
 2. Add a `plugins[]` entry: `name`, `source: ./plugins/<plugin>`,
    `description`, `version` (`0.1.0`), optional `category` / `keywords`.
 3. `plugins/<plugin>/CHANGELOG.md` (may be empty; CI prepends to it).
-4. The manifest `version` must equal the SKILL.md `metadata.version`. CI
+4. The manifest `version` must equal the SKILL.md `metadata.version` (and the
+   `.codex-plugin/plugin.json` `version`, if the plugin ships one). CI
    enforces this.
 5. `plugins/<plugin>/tests/baseline-scenarios.md` is **required** and
    CI-enforced (see Testing). It must contain at least one `## Scenario ...`,
@@ -117,7 +118,8 @@ example - copy its shape.
 `validate.yml` runs on every PR touching `plugins/**` or `.claude-plugin/**`:
 frontmatter, size, **inline plugin tests present** (baseline-scenarios.md with
 scenarios + run protocol + success criteria), manifest validity, manifest <->
-SKILL.md version sync, broken links, and markdown lint.
+SKILL.md <-> `.codex-plugin/plugin.json` version sync, broken links, and
+markdown lint.
 
 Every step in **Validate Skill Files** is blocking - markdown lint included
 (no `continue-on-error`). One red step fails the whole check.
