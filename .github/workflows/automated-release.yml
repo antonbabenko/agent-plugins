@@ -3,13 +3,17 @@ name: Automated Release
 # Per-plugin release pipeline.
 #
 # Each plugin in .claude-plugin/marketplace.json is versioned and tagged
-# independently. A push to master is analyzed per plugin: only conventional
-# commits scoped to a plugin (e.g. `feat(terraform-skill): ...`) bump that
-# plugin. Unscoped commits never trigger a release.
+# independently. A push to master is analyzed per plugin. A commit
+# qualifies for a plugin if it changed release-worthy content under
+# plugins/<plugin>/ (anything except tests/ and the CI-managed
+# CHANGELOG.md) OR its subject is explicitly scoped to the plugin
+# (back-compat). The conventional-commit TYPE of qualifying commits sets
+# the bump; a plugin with changes but no typed commit is not released.
 #
-#   feat(<plugin>)! / BREAKING CHANGE  -> major
-#   feat(<plugin>)                     -> minor
-#   fix|perf|refactor(<plugin>)        -> patch
+#   feat! / BREAKING CHANGE  -> major
+#   feat                     -> minor
+#   fix | perf | refactor    -> patch
+#   chore/docs/ci/test/...   -> no bump (loop-safe for bot release commits)
 #
 # For each bumped plugin the workflow:
 #   - bumps plugins[].version in marketplace.json
@@ -108,13 +112,35 @@ jobs:
               scope_re = re.compile(
                   r'^(?P<type>\w+)(?:\((?P<scope>[^)]+)\))?(?P<bang>!)?:\s*(?P<desc>.+)$')
 
+              # A commit qualifies for this plugin if it changed
+              # release-worthy content under plugins/<plugin>/ (anything
+              # except tests/ and the CI-managed CHANGELOG.md) OR its
+              # subject is explicitly scoped to the plugin (back-compat).
+              # The conventional-commit TYPE then sets the bump.
+              def touches_plugin(files, src):
+                  pref = src.rstrip('/') + '/'
+                  for f in files:
+                      if not f.startswith(pref):
+                          continue
+                      rel = f[len(pref):]
+                      if rel == 'CHANGELOG.md' or rel.startswith('tests/'):
+                          continue
+                      return True
+                  return False
+
               for rec in commits:
                   parts = rec.strip('\n').split('\x1f')
                   if len(parts) < 3:
                       continue
                   chash, subject, body = parts[0], parts[1], parts[2]
                   m = scope_re.match(subject.strip())
-                  if not m or m.group('scope') != name:
+                  if not m:
+                      continue
+                  files = [p for p in run(
+                      'git', 'diff-tree', '--no-commit-id', '--name-only',
+                      '-r', chash).splitlines() if p.strip()]
+                  if not (m.group('scope') == name
+                          or touches_plugin(files, source)):
                       continue
                   short = chash[:7]
                   desc = m.group('desc').strip()
@@ -127,7 +153,8 @@ jobs:
                       fixes.append((short, desc))
 
               if not (feats or fixes or breaking):
-                  print(f"SKIP {name}: no scoped commits since {last_tag or 'start'}")
+                  print(f"SKIP {name}: no qualifying typed commits since "
+                        f"{last_tag or 'start'}")
                   continue
 
               major, minor, patch = semver(cur)

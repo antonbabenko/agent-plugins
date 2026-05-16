@@ -136,18 +136,25 @@ No automated suite. Manual flow:
 Releases are **fully automated and per-plugin, for inline plugins only**.
 External plugins release in their own repos; you ship a newer one here by
 bumping its `source.ref`. The release pipeline analyzes each push to `master`
-and bumps each inline plugin independently from **plugin-scoped** conventional
-commits.
+and bumps each inline plugin independently.
 
-| Commit | Effect |
-|--------|--------|
-| `feat(<plugin>)!:` or body `BREAKING CHANGE:` | Major bump for `<plugin>` |
-| `feat(<plugin>): ...` | Minor bump for `<plugin>` |
-| `fix(<plugin>): ...`, `perf(<plugin>):`, `refactor(<plugin>):` | Patch bump |
-| Commit with no plugin scope (or unknown scope) | No release |
+**A commit qualifies for a plugin** if it changed release-worthy content
+under `plugins/<plugin>/` - anything except `tests/` and the CI-managed
+`CHANGELOG.md` - **OR** its subject is explicitly scoped to the plugin
+(`feat(<plugin>): ...`, back-compat). The conventional-commit **type** of the
+qualifying commits then sets the bump:
 
-**The commit scope must equal the plugin name.** A commit scoped to
-`terraform-skill` never moves any other plugin. Per release the workflow:
+| Qualifying commit type | Effect |
+|------------------------|--------|
+| `feat!:` / `feat(<plugin>)!:` / body `BREAKING CHANGE:` | Major bump |
+| `feat: ...` (or scoped) | Minor bump |
+| `fix: ...`, `perf:`, `refactor:` (or scoped) | Patch bump |
+| `chore`/`docs`/`ci`/`test`/`style`, or no conventional type | No bump |
+| Change touches only `tests/`, `CHANGELOG.md`, or no plugin content | No release |
+
+A squash commit touching two plugins bumps both (each from that commit's
+type). Bot release commits (`chore(release): ...`) never bump - type `chore`
+- so the pipeline is loop-safe. Per release the workflow:
 
 - bumps `plugins[].version` in `marketplace.json`,
 - syncs that plugin's `SKILL.md` `metadata.version`,
