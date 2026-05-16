@@ -1,0 +1,38 @@
+{
+  "name": "antonbabenko",
+  "owner": {
+    "name": "Anton Babenko"
+  },
+  "version": "1.0.0",
+  "metadata": {
+    "description": "Anton Babenko's collection of agent skills and plugins for AI coding agents (Claude Code, Cursor, Copilot, Gemini CLI, OpenCode, Codex). Each plugin is independently versioned and released.",
+    "repository": "https://github.com/antonbabenko/agent-plugins",
+    "license": "Apache-2.0"
+  },
+  "plugins": [
+    {
+      "name": "terraform-skill",
+      "source": {
+        "source": "github",
+        "repo": "antonbabenko/terraform-skill",
+        "ref": "v1.8.0"
+      },
+      "description": "Use when writing, reviewing, or debugging Terraform/OpenTofu modules, tests, CI, scans, or state ops — diagnoses failure mode (identity churn, secrets, blast radius, CI drift, state corruption) with version-aware guards.",
+      "category": "development",
+      "keywords": [
+        "terraform",
+        "opentofu",
+        "iac",
+        "infrastructure-as-code",
+        "state-management",
+        "testing",
+        "ci-cd",
+        "security-scanning",
+        "modules",
+        "lsp",
+        "terraform-ls"
+      ],
+      "version": "1.8.0"
+    }
+  ]
+}

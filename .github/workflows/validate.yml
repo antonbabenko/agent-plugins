@@ -1,0 +1,217 @@
+name: Validate Plugins
+
+on:
+  pull_request:
+    paths:
+      - 'plugins/**'
+      - '.claude-plugin/**'
+  push:
+    branches: [master, main]
+    paths:
+      - 'plugins/**'
+      - '.claude-plugin/**'
+  workflow_dispatch:
+
+jobs:
+  validate:
+    name: Validate Skill Files
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.x'
+
+      - name: Install Dependencies
+        run: pip install pyyaml
+
+      - name: Validate inline SKILL.md files
+        run: |
+          python3 << 'EOF'
+          import yaml
+          import sys
+          import glob
+
+          skills = sorted(glob.glob('plugins/*/skills/*/SKILL.md'))
+          if not skills:
+              print("ℹ️  No inline plugins (plugins/*/skills/*/SKILL.md). "
+                    "Marketplace may be external-only — OK.")
+              sys.exit(0)
+
+          import re
+          errors = []
+          for path in skills:
+              print(f"🔍 {path}")
+              content = open(path).read()
+
+              if not content.startswith('---'):
+                  errors.append(f"{path}: no frontmatter")
+                  continue
+
+              parts = content.split('---', 2)
+              if len(parts) < 3:
+                  errors.append(f"{path}: invalid frontmatter format")
+                  continue
+
+              fm = yaml.safe_load(parts[1])
+              missing = {'name', 'description'} - set(fm.keys())
+              if missing:
+                  errors.append(f"{path}: missing fields {missing}")
+                  continue
+
+              if not re.match(r'^[a-zA-Z0-9-]+$', fm['name']):
+                  errors.append(f"{path}: invalid name {fm['name']!r}")
+
+              desc_len = len(fm['description'])
+              if desc_len > 1024:
+                  errors.append(f"{path}: description too long ({desc_len} chars)")
+
+              lines = content.count('\n') + 1
+              size_note = "" if lines <= 500 else f"  WARNING {lines} lines (guideline: <500)"
+              print(f"   ✅ frontmatter valid ({desc_len} chars, {lines} lines){size_note}")
+
+          if errors:
+              print("\n".join(f"❌ {e}" for e in errors))
+              sys.exit(1)
+          print(f"\n✅ {len(skills)} inline skill file(s) valid")
+          EOF
+
+      - name: Validate marketplace.json
+        run: |
+          python3 << 'EOF'
+          import json
+          import os
+          import sys
+          import re
+          import yaml
+
+          print("🔍 Validating .claude-plugin/marketplace.json...")
+
+          marketplace = json.load(open('.claude-plugin/marketplace.json'))
+
+          missing = [f for f in ['name', 'owner', 'version', 'plugins']
+                     if f not in marketplace]
+          if missing:
+              print(f"❌ ERROR: missing marketplace fields: {missing}")
+              sys.exit(1)
+
+          if 'name' not in marketplace['owner']:
+              print("❌ ERROR: owner must have 'name'")
+              sys.exit(1)
+
+          if not re.match(r'^\d+\.\d+\.\d+$', marketplace['version']):
+              print(f"❌ ERROR: invalid marketplace version: {marketplace['version']}")
+              sys.exit(1)
+
+          plugins = marketplace['plugins']
+          if not isinstance(plugins, list) or not plugins:
+              print("❌ ERROR: 'plugins' must be a non-empty array")
+              sys.exit(1)
+
+          errors = []
+          n_local = n_external = 0
+
+          for idx, plugin in enumerate(plugins):
+              for f in ['name', 'description', 'source']:
+                  if f not in plugin:
+                      errors.append(f"plugin[{idx}] missing '{f}'")
+              if 'name' not in plugin or 'source' not in plugin:
+                  continue
+
+              name = plugin['name']
+              source = plugin['source']
+
+              if isinstance(source, str):
+                  # Local plugin: full validation + version sync.
+                  n_local += 1
+                  if 'version' not in plugin:
+                      errors.append(f"{name}: local plugin requires 'version'")
+                      continue
+                  version = plugin['version']
+                  if not re.match(r'^\d+\.\d+\.\d+$', version):
+                      errors.append(f"{name}: invalid version {version!r}")
+
+                  src = source.lstrip('./')
+                  if not os.path.isdir(src):
+                      errors.append(f"{name}: source dir not found: {source}")
+                      continue
+
+                  skill_path = os.path.join(src, 'skills', name, 'SKILL.md')
+                  if not os.path.isfile(skill_path):
+                      errors.append(f"{name}: skill not found at {skill_path}")
+                      continue
+
+                  fm = yaml.safe_load(open(skill_path).read().split('---', 2)[1])
+                  skill_ver = (fm.get('metadata') or {}).get('version')
+                  if skill_ver != version:
+                      errors.append(
+                          f"{name}: marketplace version {version} != "
+                          f"SKILL.md metadata.version {skill_ver}")
+
+              elif isinstance(source, dict):
+                  # External plugin: validate reference shape only.
+                  n_external += 1
+                  if source.get('source') != 'github':
+                      errors.append(
+                          f"{name}: external source.source must be 'github' "
+                          f"(got {source.get('source')!r})")
+                      continue
+                  repo = source.get('repo', '')
+                  if not re.match(r'^[\w.-]+/[\w.-]+$', repo):
+                      errors.append(f"{name}: invalid source.repo {repo!r}")
+                  if 'sha' in source and not re.match(r'^[0-9a-f]{40}$', source['sha']):
+                      errors.append(f"{name}: source.sha must be 40 hex chars")
+                  if 'ref' in source and not source['ref']:
+                      errors.append(f"{name}: source.ref is empty")
+                  if 'version' in plugin and not re.match(
+                          r'^\d+\.\d+\.\d+$', plugin['version']):
+                      errors.append(
+                          f"{name}: invalid version {plugin['version']!r}")
+              else:
+                  errors.append(f"{name}: source must be a string or object")
+
+          if errors:
+              print("\n".join(f"❌ {e}" for e in errors))
+              sys.exit(1)
+          print(f"✅ marketplace.json valid "
+                f"(marketplace v{marketplace['version']}, "
+                f"{n_local} local + {n_external} external plugin(s))")
+          EOF
+
+      - name: Check for Broken Links
+        run: |
+          echo "🔍 Checking internal reference links (inline plugins only)..."
+          rc=0
+          for skill_dir in plugins/*/skills/*; do
+            [ -f "$skill_dir/SKILL.md" ] || continue
+            ( cd "$skill_dir"
+              grep -oP '\[.*?\]\(references/.*?\.md.*?\)' SKILL.md references/*.md 2>/dev/null | \
+                sed 's/.*(//' | sed 's/).*//' | sed 's/#.*//' | \
+                while read -r link; do
+                  if [ -n "$link" ] && [ ! -f "$link" ]; then
+                    echo "❌ ERROR: broken link in $skill_dir: $link"
+                    exit 1
+                  fi
+                done
+            ) || rc=1
+          done
+          [ $rc -eq 0 ] && echo "✅ No broken links" || exit 1
+
+      - name: Lint Markdown
+        uses: DavidAnson/markdownlint-cli2-action@v16
+        with:
+          globs: |
+            plugins/**/*.md
+            README.md
+            CONTRIBUTING.md
+        continue-on-error: true
+
+      - name: Summary
+        if: success()
+        run: |
+          echo "## ✅ Validation Passed" >> "$GITHUB_STEP_SUMMARY"
+          echo "All plugin validation checks passed." >> "$GITHUB_STEP_SUMMARY"

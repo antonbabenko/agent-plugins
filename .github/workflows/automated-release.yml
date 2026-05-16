@@ -1,0 +1,238 @@
+name: Automated Release
+
+# Per-plugin release pipeline.
+#
+# Each plugin in .claude-plugin/marketplace.json is versioned and tagged
+# independently. A push to master is analyzed per plugin: only conventional
+# commits scoped to a plugin (e.g. `feat(terraform-skill): ...`) bump that
+# plugin. Unscoped commits never trigger a release.
+#
+#   feat(<plugin>)! / BREAKING CHANGE  -> major
+#   feat(<plugin>)                     -> minor
+#   fix|perf|refactor(<plugin>)        -> patch
+#
+# For each bumped plugin the workflow:
+#   - bumps plugins[].version in marketplace.json
+#   - syncs that plugin's SKILL.md metadata.version
+#   - prepends an entry to plugins/<plugin>/CHANGELOG.md
+#   - tags <plugin>-vX.Y.Z and creates a GitHub Release
+
+on:
+  push:
+    branches:
+      - master
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: release
+  cancel-in-progress: false
+
+jobs:
+  release:
+    name: Per-Plugin Release
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.x'
+
+      - name: Install Dependencies
+        run: pip install pyyaml
+
+      - name: Compute and apply per-plugin releases
+        id: release
+        run: |
+          python3 << 'EOF'
+          import json
+          import os
+          import re
+          import subprocess
+          import sys
+          from datetime import date
+
+          def run(*args):
+              return subprocess.run(
+                  args, check=True, capture_output=True, text=True).stdout
+
+          def semver(t):
+              m = re.match(r'^(\d+)\.(\d+)\.(\d+)$', t)
+              return tuple(int(x) for x in m.groups()) if m else (0, 0, 0)
+
+          marketplace_path = '.claude-plugin/marketplace.json'
+          marketplace = json.load(open(marketplace_path))
+          repo = os.environ.get('GITHUB_REPOSITORY', '')
+
+          run('git', 'fetch', '--tags', '--force')
+
+          released = []
+
+          for idx, plugin in enumerate(marketplace['plugins']):
+              name = plugin['name']
+              raw_source = plugin.get('source')
+
+              # External plugins (object source) release in their own repos.
+              # Skip them: nothing local to bump or tag here.
+              if not isinstance(raw_source, str):
+                  print(f"SKIP {name}: external plugin (released upstream)")
+                  continue
+
+              source = raw_source.lstrip('./')
+              cur = plugin['version']
+
+              # Last tag for this plugin: <name>-vX.Y.Z
+              tags = [
+                  t for t in run('git', 'tag', '--list', f'{name}-v*').split()
+                  if re.match(rf'^{re.escape(name)}-v\d+\.\d+\.\d+$', t)
+              ]
+              tags.sort(key=lambda t: semver(t.split('-v', 1)[1]))
+              last_tag = tags[-1] if tags else None
+              rng = f'{last_tag}..HEAD' if last_tag else 'HEAD'
+
+              # Commits in range, NUL-record delimited: hash, subject, body
+              raw = run('git', 'log', rng,
+                        '--format=%H%x1f%s%x1f%b%x1e')
+              commits = [c for c in raw.split('\x1e') if c.strip()]
+
+              feats, fixes, breaking = [], [], False
+              scope_re = re.compile(
+                  r'^(?P<type>\w+)(?:\((?P<scope>[^)]+)\))?(?P<bang>!)?:\s*(?P<desc>.+)$')
+
+              for rec in commits:
+                  parts = rec.strip('\n').split('\x1f')
+                  if len(parts) < 3:
+                      continue
+                  chash, subject, body = parts[0], parts[1], parts[2]
+                  m = scope_re.match(subject.strip())
+                  if not m or m.group('scope') != name:
+                      continue
+                  short = chash[:7]
+                  desc = m.group('desc').strip()
+                  ctype = m.group('type')
+                  if m.group('bang') or 'BREAKING CHANGE' in body:
+                      breaking = True
+                  if ctype == 'feat':
+                      feats.append((short, desc))
+                  elif ctype in ('fix', 'perf', 'refactor'):
+                      fixes.append((short, desc))
+
+              if not (feats or fixes or breaking):
+                  print(f"SKIP {name}: no scoped commits since {last_tag or 'start'}")
+                  continue
+
+              major, minor, patch = semver(cur)
+              if breaking:
+                  major, minor, patch = major + 1, 0, 0
+              elif feats:
+                  minor, patch = minor + 1, 0
+              else:
+                  patch += 1
+              new = f'{major}.{minor}.{patch}'
+
+              # 1. marketplace.json plugin version
+              marketplace['plugins'][idx]['version'] = new
+
+              # 2. SKILL.md metadata.version
+              skill_path = os.path.join(source, 'skills', name, 'SKILL.md')
+              lines = open(skill_path).read().splitlines(keepends=True)
+              synced = False
+              for i, line in enumerate(lines[:15]):
+                  if line.strip().startswith('version:'):
+                      indent = line[:len(line) - len(line.lstrip())]
+                      lines[i] = f'{indent}version: {new}\n'
+                      synced = True
+                      break
+              if not synced:
+                  print(f"ERROR {name}: no version field in {skill_path}")
+                  sys.exit(1)
+              open(skill_path, 'w').writelines(lines)
+
+              # 3. plugins/<plugin>/CHANGELOG.md entry
+              changelog_path = os.path.join(source, 'CHANGELOG.md')
+              compare = ''
+              if repo and last_tag:
+                  compare = (f" "
+                             f"([compare](https://github.com/{repo}/compare/"
+                             f"{last_tag}...{name}-v{new}))")
+              section = [f"## {name}-v{new} ({date.today().isoformat()}){compare}\n\n"]
+              if breaking:
+                  section.append("### BREAKING CHANGES\n\n")
+              if feats:
+                  section.append("### Features\n\n")
+                  section += [f"* {d} ({h})\n" for h, d in feats]
+                  section.append("\n")
+              if fixes:
+                  section.append("### Bug Fixes\n\n")
+                  section += [f"* {d} ({h})\n" for h, d in fixes]
+                  section.append("\n")
+              entry = "".join(section)
+              prev = open(changelog_path).read() if os.path.exists(changelog_path) else ""
+              open(changelog_path, 'w').write(entry + "\n" + prev)
+
+              released.append({'name': name, 'version': new,
+                                'tag': f'{name}-v{new}', 'notes': entry})
+              print(f"RELEASE {name}: {cur} -> {new}")
+
+          if not released:
+              print("No plugins to release.")
+              with open(os.environ['GITHUB_OUTPUT'], 'a') as f:
+                  f.write("released=false\n")
+              sys.exit(0)
+
+          json.dump(marketplace, open(marketplace_path, 'w'), indent=2)
+          open(marketplace_path, 'a').write('\n')
+
+          json.dump(released, open('.release-manifest.json', 'w'))
+          with open(os.environ['GITHUB_OUTPUT'], 'a') as f:
+              f.write("released=true\n")
+          EOF
+
+      - name: Commit, tag, and create releases
+        if: steps.release.outputs.released == 'true'
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          set -euo pipefail
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+
+          SUMMARY="$(python3 -c "import json; print(', '.join(r['tag'] for r in json.load(open('.release-manifest.json'))))")"
+          git add .claude-plugin/marketplace.json plugins
+          git commit -m "chore(release): ${SUMMARY}"
+          git push origin HEAD:master
+
+          python3 - << 'EOF'
+          import json, subprocess
+          for r in json.load(open('.release-manifest.json')):
+              subprocess.run(['git', 'tag', r['tag']], check=True)
+              open(f"/tmp/{r['tag']}.md", 'w').write(r['notes'])
+          EOF
+
+          git push origin --tags
+
+          TAGS="$(python3 -c "import json,sys; sys.stdout.write(chr(10).join(r['tag'] for r in json.load(open('.release-manifest.json'))))")"
+          while IFS= read -r tag; do
+            [ -n "$tag" ] || continue
+            gh release create "$tag" \
+              --title "$tag" \
+              --notes-file "/tmp/${tag}.md" \
+              --verify-tag
+          done <<< "$TAGS"
+
+          rm -f .release-manifest.json
+
+      - name: Release Summary
+        if: steps.release.outputs.released == 'true'
+        run: |
+          echo "## Release Summary" >> "$GITHUB_STEP_SUMMARY"
+          echo "" >> "$GITHUB_STEP_SUMMARY"
+          echo "Per-plugin releases created. See the Releases page for details." >> "$GITHUB_STEP_SUMMARY"
