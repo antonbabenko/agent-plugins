@@ -9,6 +9,29 @@ in the PR body or /tmp - never inside the plugin.
 > `.markdownlint.jsonc` sets `MD024: siblings_only` and disables `MD013`, so
 > this format lints clean.
 
+## Running These Tests
+
+Required for every content PR that touches this plugin. No build; this is a
+behavioral A/B against a real agent host.
+
+1. **Baseline (WITHOUT the change).** Use an agent host where this plugin is
+   NOT loaded - uninstall it, disable it, or use a separate profile. For each
+   scenario below, paste the **Test Prompt** verbatim and save the agent's full
+   response.
+2. **Target (WITH the change).** Load the plugin (your branch). Re-run the
+   exact same prompts.
+3. **Compare.** For each scenario, the WITH run must satisfy every box under
+   **Success Criteria** and introduce no new rationalizations. Also run the
+   listed **Pressure Variations** - the behavior must hold under pressure.
+4. **Gate.** ALL scenarios must pass. A single failing scenario blocks the PR.
+5. **Evidence.** Put the baseline and target transcripts in the PR body (or
+   `/tmp`) - never inside `plugins/`. Fill the PR template's testing section.
+
+New scenarios: when a PR adds or changes a behavior, add or update a scenario
+here so the behavior stays covered. CI fails an inline plugin that has no
+`tests/baseline-scenarios.md` with scenarios, this run protocol, and success
+criteria.
+
 ## Scenario 1: Find Callers and Rename Safely
 
 **Objective:** Verify the agent uses semantic navigation and a safe rename pass

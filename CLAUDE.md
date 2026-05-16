@@ -76,6 +76,10 @@ newer version, bump `source.ref` and the mirrored `version` in the manifest.
 3. Add `plugins/<plugin>/CHANGELOG.md` (can be empty; CI prepends to it).
 4. The manifest `version` must equal the SKILL.md `metadata.version`. CI
    enforces this.
+5. Add `plugins/<plugin>/tests/baseline-scenarios.md` - **required**, CI
+   enforces it: at least one `## Scenario`, a `## Running These Tests`
+   protocol, and a `### Success Criteria` list. Copy the shape of
+   `plugins/code-intelligence/tests/baseline-scenarios.md`.
 
 ## Development Workflow
 
@@ -116,10 +120,15 @@ grep -oP '\[.*?\]\(references/.*?\.md.*?\)' SKILL.md references/*.md | \
 No automated suite. Manual flow:
 
 1. Edit a `SKILL.md` or `references/*.md` file.
-2. Reload the plugin in your agent host.
-3. Run real queries the skill targets.
-4. Confirm the agent applies the new patterns.
-5. Re-check that plugin's `tests/` for regressions (if it has them).
+2. Run that plugin's `tests/baseline-scenarios.md` per its
+   `## Running These Tests`: each prompt with the plugin OFF (baseline) then
+   ON (target).
+3. Every scenario must meet its `### Success Criteria` with no new
+   rationalizations; one failure blocks the change.
+4. Add or update a scenario whenever a PR adds or changes a behavior.
+5. Attach baseline + target transcripts to the PR (or `/tmp`), never under
+   `plugins/`. Tests are required, not optional - CI fails an inline plugin
+   with no scenario file.
 
 ## Commit Conventions & Releases
 
