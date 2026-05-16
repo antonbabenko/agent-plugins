@@ -9,6 +9,10 @@
   // "Success Criteria", ...) under different scenario parents. Allow
   // duplicates when they are not siblings.
   "MD024": { "siblings_only": true },
+  // README uses <details>/<summary> for collapsible per-host install
+  // blocks. Allow only those two elements; all other inline HTML stays
+  // flagged.
+  "MD033": { "allowed_elements": ["details", "summary"] },
   // Table pipe spacing/alignment is cosmetic and varies across the repo's
   // tables; not a useful signal (newer markdownlint only).
   "MD060": false

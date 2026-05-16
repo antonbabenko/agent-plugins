@@ -1,0 +1,34 @@
+{
+  "author": {
+    "name": "Anton Babenko",
+    "url": "https://github.com/antonbabenko"
+  },
+  "description": "Use when navigating or refactoring code with a language server - choosing between semantic (LSP), exact-text (rg), and fuzzy/semantic search; anchoring LSP calls by position; gating degraded results; and disclosing tool substitutions, in any language.",
+  "homepage": "https://github.com/antonbabenko/agent-plugins",
+  "interface": {
+    "capabilities": [
+      "Interactive",
+      "Read"
+    ],
+    "category": "Development",
+    "developerName": "Anton Babenko",
+    "displayName": "Code Intelligence",
+    "longDescription": "Language-agnostic code navigation discipline: when to use a language server vs exact-text vs fuzzy search, position-anchored LSP calls, a degradation gate, and first-line tool-substitution disclosure.",
+    "shortDescription": "Pick the right code search tool by task: LSP vs exact-text vs fuzzy, with degradation gating and tool-substitution disclosure.",
+    "websiteURL": "https://github.com/antonbabenko/agent-plugins"
+  },
+  "keywords": [
+    "code-intelligence",
+    "code-navigation",
+    "language-server",
+    "lsp",
+    "refactoring",
+    "search-precedence",
+    "tool-disclosure"
+  ],
+  "license": "Apache-2.0",
+  "name": "code-intelligence",
+  "repository": "https://github.com/antonbabenko/agent-plugins",
+  "skills": "./skills",
+  "version": "0.2.0"
+}

@@ -74,8 +74,9 @@ newer version, bump `source.ref` and the mirrored `version` in the manifest.
    `description`, `version` (start at `0.1.0`), optional `category` /
    `keywords`.
 3. Add `plugins/<plugin>/CHANGELOG.md` (can be empty; CI prepends to it).
-4. The manifest `version` must equal the SKILL.md `metadata.version`. CI
-   enforces this.
+4. The manifest `version` must equal the SKILL.md `metadata.version`. If the
+   plugin ships a `.codex-plugin/plugin.json`, its `version` must match too.
+   CI enforces this.
 5. Add `plugins/<plugin>/tests/baseline-scenarios.md` - **required**, CI
    enforces it: at least one `## Scenario`, a `## Running These Tests`
    protocol, and a `### Success Criteria` list. Copy the shape of
@@ -150,14 +151,15 @@ commits.
 
 - bumps `plugins[].version` in `marketplace.json`,
 - syncs that plugin's `SKILL.md` `metadata.version`,
+- syncs that plugin's `.codex-plugin/plugin.json` `version` (if present),
 - prepends an entry to `plugins/<plugin>/CHANGELOG.md`,
 - tags `<plugin>-vX.Y.Z` and creates a GitHub Release.
 
 The marketplace root `version` is the manifest schema version and is bumped
 manually, not by CI.
 
-**Never manually edit plugin version numbers** in the manifest or SKILL.md. CI
-owns them. To force a release without a code change, push a scoped commit or run
+**Never manually edit plugin version numbers** in the manifest, SKILL.md, or
+`.codex-plugin/plugin.json`. CI owns them. To force a release without a code change, push a scoped commit or run
 the workflow via `workflow_dispatch`.
 
 > Note: inline-plugin tags are `<plugin>-vX.Y.Z` (scoped to this repo).

@@ -17,7 +17,7 @@
         "repo": "antonbabenko/terraform-skill",
         "ref": "v1.8.0"
       },
-      "description": "Use when writing, reviewing, or debugging Terraform/OpenTofu modules, tests, CI, scans, or state ops \u2014 diagnoses failure mode (identity churn, secrets, blast radius, CI drift, state corruption) with version-aware guards.",
+      "description": "Use when writing, reviewing, or debugging Terraform/OpenTofu modules, tests, CI, scans, or state ops - diagnoses failure mode (identity churn, secrets, blast radius, CI drift, state corruption) with version-aware guards.",
       "category": "development",
       "keywords": [
         "terraform",
