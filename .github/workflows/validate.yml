@@ -252,7 +252,6 @@ jobs:
             plugins/**/*.md
             README.md
             CONTRIBUTING.md
-        continue-on-error: true
 
       - name: Summary
         if: success()

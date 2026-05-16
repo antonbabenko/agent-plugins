@@ -80,7 +80,7 @@ Tests are **required**, not optional. This is documentation, not code, so
 **Every inline plugin must ship `plugins/<plugin>/tests/baseline-scenarios.md`**
 with this structure (CI fails the PR if it is missing or incomplete):
 
-```
+```text
 # Baseline Scenarios
 <intro: compare WITHOUT vs WITH the skill>
 
@@ -117,8 +117,12 @@ example - copy its shape.
 `validate.yml` runs on every PR touching `plugins/**` or `.claude-plugin/**`:
 frontmatter, size, **inline plugin tests present** (baseline-scenarios.md with
 scenarios + run protocol + success criteria), manifest validity, manifest <->
-SKILL.md version sync, broken links, and markdown lint. Fix failures before
-requesting review.
+SKILL.md version sync, broken links, and markdown lint.
+
+The **Validate Skill Files** check is a **required status check** on `master`
+(branch protection): a PR cannot be merged while it is failing. Every check
+above is blocking - markdown lint included (no `continue-on-error`). Fix all
+failures; do not request review or merge with a red check.
 
 ## Reporting Issues
 
