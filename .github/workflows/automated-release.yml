@@ -14,6 +14,7 @@ name: Automated Release
 # For each bumped plugin the workflow:
 #   - bumps plugins[].version in marketplace.json
 #   - syncs that plugin's SKILL.md metadata.version
+#   - syncs that plugin's .codex-plugin/plugin.json version (if present)
 #   - prepends an entry to plugins/<plugin>/CHANGELOG.md
 #   - tags <plugin>-vX.Y.Z and creates a GitHub Release
 
@@ -155,6 +156,16 @@ jobs:
                   print(f"ERROR {name}: no version field in {skill_path}")
                   sys.exit(1)
               open(skill_path, 'w').writelines(lines)
+
+              # 2b. Codex per-plugin manifest version (optional - only
+              # inline plugins that ship a .codex-plugin/plugin.json).
+              codex_path = os.path.join(source, '.codex-plugin', 'plugin.json')
+              if os.path.isfile(codex_path):
+                  cm = json.load(open(codex_path))
+                  cm['version'] = new
+                  json.dump(cm, open(codex_path, 'w'), indent=2)
+                  open(codex_path, 'a').write('\n')
+                  print(f"   synced {codex_path} -> {new}")
 
               # 3. plugins/<plugin>/CHANGELOG.md entry
               changelog_path = os.path.join(source, 'CHANGELOG.md')

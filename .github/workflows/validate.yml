@@ -196,6 +196,16 @@ jobs:
                           f"{name}: marketplace version {version} != "
                           f"SKILL.md metadata.version {skill_ver}")
 
+                  # Optional Codex per-plugin manifest must stay in sync.
+                  codex_manifest = os.path.join(
+                      src, '.codex-plugin', 'plugin.json')
+                  if os.path.isfile(codex_manifest):
+                      codex_ver = json.load(open(codex_manifest)).get('version')
+                      if codex_ver != version:
+                          errors.append(
+                              f"{name}: marketplace version {version} != "
+                              f".codex-plugin/plugin.json version {codex_ver}")
+
               elif isinstance(source, dict):
                   # External plugin: validate reference shape only.
                   n_external += 1
