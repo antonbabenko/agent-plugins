@@ -59,19 +59,24 @@ content shape and token discipline.
 
 ## Commits & Releases
 
-Releases are automated and **per-plugin, for inline plugins only**, driven by
-the commit scope on `master`. The scope must equal the plugin name. External
-plugins release upstream; update them here by bumping `source.ref`.
+Releases are automated and **per-plugin, for inline plugins only**. A commit
+qualifies for a plugin when it changes release-worthy content under
+`plugins/<plugin>/` (anything except `tests/` and the CI-managed
+`CHANGELOG.md`), or when its subject is scoped to that plugin
+(`feat(<plugin>): ...`, back-compat). The commit **type** sets the bump.
+External plugins release upstream; update them here by bumping `source.ref`.
 
-| Commit subject | Result |
-|----------------|--------|
-| `feat(<plugin>): ...` | minor bump for `<plugin>` |
-| `fix(<plugin>): ...` / `perf` / `refactor` | patch bump |
-| `feat(<plugin>)!: ...` or `BREAKING CHANGE:` in body | major bump |
-| no plugin scope | no release |
+| Qualifying commit type | Result |
+|------------------------|--------|
+| `feat: ...` (or scoped) | minor bump |
+| `fix:` / `perf:` / `refactor:` (or scoped) | patch bump |
+| `feat!:` or `BREAKING CHANGE:` in body | major bump |
+| `chore`/`docs`/`ci`/`test`, or no conventional type | no release |
+| touches only `tests/`, `CHANGELOG.md`, or no plugin content | no release |
 
-A commit scoped to one plugin never affects another. PRs are squash-merged, so
-the squash commit subject is what drives the release; set it deliberately.
+PRs are squash-merged, so the squash subject's type plus the changed paths
+drive the release; set the subject type deliberately. A squash touching two
+plugins bumps both.
 
 ## Testing
 
