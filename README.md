@@ -3,15 +3,16 @@
 [![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](LICENSE)
 [![Agent Skills](https://img.shields.io/badge/Agent-Skills-5865F2)](https://agentskills.io)
 [![Claude Code](https://img.shields.io/badge/Claude%20Code-marketplace-D97757)](https://code.claude.com/docs/en/plugins-reference)
+[![Codex](https://img.shields.io/badge/Codex-marketplace-000000)](https://github.com/openai/codex)
 [![CI](https://github.com/antonbabenko/agent-plugins/actions/workflows/validate.yml/badge.svg)](https://github.com/antonbabenko/agent-plugins/actions/workflows/validate.yml)
 
 Executable discipline for AI coding agents (Claude Code, Cursor, Copilot,
 Gemini CLI, OpenCode, Codex) - skills the agent loads on demand and applies
 while it works, not prose guides it ignores.
 
-This repo is one Claude Code marketplace. Each plugin is independent and
-versioned separately, either **external** (pinned from its own repo) or
-**inline** (content lives here).
+Agent Plugins is a plugin marketplace for Claude Code and OpenAI Codex. Each
+plugin is independent and versioned separately - external (pinned from its own
+repo) or inline (content lives here).
 
 ## Install
 
@@ -19,21 +20,11 @@ versioned separately, either **external** (pinned from its own repo) or
 
 One command, same on every host. Works with any
 [Agent Skills](https://agentskills.io)-compatible agent (Claude Code, Cursor,
-Copilot, Gemini CLI, OpenCode, Codex, and more) through
-[skills.sh](https://skills.sh/):
+Copilot, Gemini CLI, OpenCode, Codex, and more):
 
 ```bash
 npx skills add https://github.com/antonbabenko/terraform-skill
 ```
-
-`npx skills add <repo>` pulls a skill straight from its own repo and wires it
-into the agent you run it for - no per-host setup. `terraform-skill` is
-external (its content lives in its own repo), so this is the simplest path for
-it everywhere.
-
-The inline `code-intelligence` has no standalone repo of its own. Install it
-through the Claude Code marketplace below, or clone this repo using the
-per-host blocks further down.
 
 ### Claude Code - marketplace, both plugins
 
@@ -42,8 +33,19 @@ per-host blocks further down.
 /plugin install <plugin>@antonbabenko
 ```
 
-Replace `<plugin>` with `code-intelligence` or `terraform-skill`. For other
-hosts, expand below.
+Replace `<plugin>` with `code-intelligence` or `terraform-skill`.
+
+### Codex - marketplace, both plugins
+
+```bash
+codex plugin marketplace add antonbabenko/agent-plugins
+```
+
+Then run `codex`, open `/plugins`, select **Agent Plugins**, and install
+`code-intelligence` or `terraform-skill`. Codex has no `plugin install`
+subcommand yet; install and enable happen in the `/plugins` view.
+
+For other hosts, expand below.
 
 <!-- prettier-ignore-start -->
 
@@ -56,9 +58,9 @@ External plugin (`terraform-skill`) installs as an extension from its own repo:
 gemini extensions install https://github.com/antonbabenko/terraform-skill
 ```
 
-The inline `code-intelligence` has no standalone repo. Clone this marketplace
-and point Gemini at `plugins/code-intelligence` per Gemini's skill-discovery
-docs, or install it through Claude Code.
+The inline `code-intelligence` has no standalone repo. Clone the Agent Plugins
+repo and point Gemini at `plugins/code-intelligence` per Gemini's
+skill-discovery docs, or install it through Claude Code or Codex.
 
 </details>
 
@@ -106,7 +108,9 @@ OpenCode auto-discovers skills from `.agents/skills/`, `.opencode/skills/`, and
 </details>
 
 <details>
-<summary>Codex (OpenAI)</summary>
+<summary>Codex (OpenAI) - clone fallback</summary>
+
+Prefer the Codex marketplace block above. Plain skills-directory fallback:
 
 ```bash
 git clone https://github.com/antonbabenko/terraform-skill.git ~/.agents/skills/terraform-skill
