@@ -1,90 +1,209 @@
-# agent-plugins
+# Agent Plugins for AI Coding Agents
 
 [![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](LICENSE)
+[![Agent Skills](https://img.shields.io/badge/Agent-Skills-5865F2)](https://agentskills.io)
+[![Claude Code](https://img.shields.io/badge/Claude%20Code-marketplace-D97757)](https://code.claude.com/docs/en/plugins-reference)
+[![CI](https://github.com/antonbabenko/agent-plugins/actions/workflows/validate.yml/badge.svg)](https://github.com/antonbabenko/agent-plugins/actions/workflows/validate.yml)
 
-Anton Babenko's collection of agent skills and plugins for AI coding agents
-(Claude Code, Cursor, Copilot, Gemini CLI, OpenCode, Codex). It is a single
-Claude Code marketplace; each plugin is independent and versioned separately.
-Plugins are either **external** (referenced from their own repo) or **inline**
-(content lives here).
+Executable discipline for AI coding agents (Claude Code, Cursor, Copilot,
+Gemini CLI, OpenCode, Codex) - skills the agent loads on demand and applies
+while it works, not prose guides it ignores.
 
-## Plugins
+This repo is one Claude Code marketplace. Each plugin is independent and
+versioned separately, either **external** (pinned from its own repo) or
+**inline** (content lives here).
 
-| Plugin | Type | Description |
-|--------|------|-------------|
-| [terraform-skill](https://github.com/antonbabenko/terraform-skill) | external | Writing, reviewing, and debugging Terraform/OpenTofu modules, tests, CI, scans, and state ops. Pinned via `source.ref`. |
-| [code-intelligence](plugins/code-intelligence/skills/code-intelligence/SKILL.md) | inline | Language-agnostic code navigation discipline: when to use a language server vs exact-text vs fuzzy search, position-anchored LSP calls, a degradation gate, and first-line tool-substitution disclosure. |
+## Install
 
-## Why these plugins
+### npx skills - recommended, any Agent Skills host
 
-These are not prose guides - they are executable discipline the agent loads on
-demand and applies while it works.
+One command, same on every host. Works with any
+[Agent Skills](https://agentskills.io)-compatible agent (Claude Code, Cursor,
+Copilot, Gemini CLI, OpenCode, Codex, and more) through
+[skills.sh](https://skills.sh/):
 
-- **Fewer wrong tools, fewer silent failures.** `code-intelligence` stops the
-  common failure modes directly: blind text-replace renames, accepting "the
-  tool is broken" without proof, presenting a keyword grep as a complete
-  answer. `terraform-skill` routes a request to its actual failure mode
-  (identity churn, secret exposure, blast radius, state corruption) before
-  generating code.
-- **Honest by construction.** Any tool substitution or skipped step is stated
-  on the first line of the response, not buried later - so you can trust what
-  the agent says it did.
-- **Token-lean.** Progressive disclosure: a short `SKILL.md` entry point routes
-  to reference files that load only when the task needs them. The agent does
-  not carry the whole guide in context.
-- **Portable.** One discipline across Claude Code, Cursor, Copilot, Gemini CLI,
-  OpenCode, and Codex - no per-host retraining.
-- **Composable and pinned.** Generic skills (`code-intelligence`) provide the
-  base discipline; domain skills (`terraform-skill`) extend it. Each plugin is
-  versioned and released independently, so an upgrade to one never moves
-  another.
+```bash
+npx skills add https://github.com/antonbabenko/terraform-skill
+```
 
-## Installation
+`npx skills add <repo>` pulls a skill straight from its own repo and wires it
+into the agent you run it for - no per-host setup. `terraform-skill` is
+external (its content lives in its own repo), so this is the simplest path for
+it everywhere.
 
-### Claude Code
+The inline `code-intelligence` has no standalone repo of its own. Install it
+through the Claude Code marketplace below, or clone this repo using the
+per-host blocks further down.
+
+### Claude Code - marketplace, both plugins
 
 ```bash
 /plugin marketplace add antonbabenko/agent-plugins
-/plugin install terraform-skill@antonbabenko
+/plugin install <plugin>@antonbabenko
 ```
 
-Install any other plugin the same way: `/plugin install <plugin>@antonbabenko`.
+Replace `<plugin>` with `code-intelligence` or `terraform-skill`. For other
+hosts, expand below.
 
-### Other agents
+<!-- prettier-ignore-start -->
 
-Plugins follow the [Agent Skills](https://agentskills.io) layout
-(`skills/<name>/SKILL.md`). Clone the repo and point your host at the plugin
-directory, for example:
+<details>
+<summary>Gemini CLI</summary>
+
+External plugin (`terraform-skill`) installs as an extension from its own repo:
+
+```bash
+gemini extensions install https://github.com/antonbabenko/terraform-skill
+```
+
+The inline `code-intelligence` has no standalone repo. Clone this marketplace
+and point Gemini at `plugins/code-intelligence` per Gemini's skill-discovery
+docs, or install it through Claude Code.
+
+</details>
+
+<details>
+<summary>Cursor</summary>
+
+```bash
+# external plugin (terraform-skill) - from its own repo
+git clone https://github.com/antonbabenko/terraform-skill.git ~/.cursor/skills/terraform-skill
+
+# inline plugin (code-intelligence) - from this repo
+git clone https://github.com/antonbabenko/agent-plugins.git
+ln -s "$(pwd)/agent-plugins/plugins/code-intelligence" ~/.cursor/skills/code-intelligence
+```
+
+Cursor auto-discovers skills from `.agents/skills/` and `.cursor/skills/`.
+
+</details>
+
+<details>
+<summary>Copilot</summary>
+
+```bash
+git clone https://github.com/antonbabenko/terraform-skill.git ~/.copilot/skills/terraform-skill
+git clone https://github.com/antonbabenko/agent-plugins.git
+ln -s "$(pwd)/agent-plugins/plugins/code-intelligence" ~/.copilot/skills/code-intelligence
+```
+
+Copilot auto-discovers skills from `.copilot/skills/`.
+
+</details>
+
+<details>
+<summary>OpenCode</summary>
+
+```bash
+git clone https://github.com/antonbabenko/terraform-skill.git ~/.agents/skills/terraform-skill
+git clone https://github.com/antonbabenko/agent-plugins.git
+ln -s "$(pwd)/agent-plugins/plugins/code-intelligence" ~/.agents/skills/code-intelligence
+```
+
+OpenCode auto-discovers skills from `.agents/skills/`, `.opencode/skills/`, and
+`.claude/skills/`.
+
+</details>
+
+<details>
+<summary>Codex (OpenAI)</summary>
+
+```bash
+git clone https://github.com/antonbabenko/terraform-skill.git ~/.agents/skills/terraform-skill
+git clone https://github.com/antonbabenko/agent-plugins.git
+ln -s "$(pwd)/agent-plugins/plugins/code-intelligence" ~/.agents/skills/code-intelligence
+```
+
+Codex auto-discovers skills from `~/.agents/skills/` and `.agents/skills/`.
+Update with `git pull` in each clone.
+
+</details>
+
+<details>
+<summary>Antigravity</summary>
+
+```bash
+git clone https://github.com/antonbabenko/terraform-skill.git ~/.antigravity/skills/terraform-skill
+git clone https://github.com/antonbabenko/agent-plugins.git
+ln -s "$(pwd)/agent-plugins/plugins/code-intelligence" ~/.antigravity/skills/code-intelligence
+```
+
+Update with `git pull` in each clone.
+
+</details>
+
+<details>
+<summary>Manual (Claude Code - symlink a local clone)</summary>
 
 ```bash
 git clone https://github.com/antonbabenko/agent-plugins.git
-# Inline plugins live under plugins/<name>/ - symlink one into ~/.claude/plugins:
+mkdir -p ~/.claude/plugins
+# inline plugins live under plugins/<name>/
 ln -s "$(pwd)/agent-plugins/plugins/code-intelligence" ~/.claude/plugins/code-intelligence
-# External plugins (e.g. terraform-skill) are not in this repo - install them
-# from their own repo / marketplace ref instead.
 ```
 
-For per-host instructions (Cursor, Copilot, Gemini CLI, OpenCode, Codex,
-Antigravity) see that plugin's `SKILL.md` and the
-[Agent Skills](https://agentskills.io) docs.
+Claude Code autodiscovers `skills/<name>/SKILL.md` on next launch. Edits to the
+clone are picked up live. External plugins (e.g. `terraform-skill`) are not in
+this repo - install them from their own repo instead.
 
-## Versioning
+</details>
 
-Each plugin is released independently.
+<!-- prettier-ignore-end -->
 
-- **External plugins** release in their own repos and are pinned here by
-  `source.ref` in `.claude-plugin/marketplace.json`.
-- **Inline plugins** release from this repo: a push to `master` with a
-  plugin-scoped conventional commit (e.g. `feat(<plugin>): ...`) bumps only
-  that plugin and tags it `<plugin>-vX.Y.Z`.
+> Do not also add `antonbabenko/terraform-skill` as a marketplace. It uses the
+> same marketplace name as this repo and the two will clash. Install
+> `terraform-skill` from here, or as a standalone skill from its own repo - not
+> both.
 
-See [CLAUDE.md](CLAUDE.md) for the full release model.
+## Plugins
+
+### code-intelligence `inline`
+
+> Stops blind text-replace renames and "the tool is broken" guesses: the agent picks language-server vs text vs fuzzy search correctly for the task, and says so on the first line when it has to swap one tool for another.
+
+```bash
+/plugin install code-intelligence@antonbabenko
+```
+
+Try: `"Rename the vpc_id variable across this Terraform module"` -
+`"Find every reference to aws_s3_bucket.this before I change it"`
+
+### terraform-skill `external`
+
+> Routes a Terraform or OpenTofu request to its real failure mode - identity churn, secret exposure, blast radius, state corruption - before generating code, instead of emitting plausible-looking HCL that breaks on apply.
+
+```bash
+/plugin install terraform-skill@antonbabenko
+# or, on any Agent Skills host:
+npx skills add https://github.com/antonbabenko/terraform-skill
+```
+
+Try: `"Create a VPC module with native tests"` -
+`"Configure S3 backend with state locking"`
+
+Source and detail: [github.com/antonbabenko/terraform-skill](https://github.com/antonbabenko/terraform-skill).
+The full per-host install list lives in that repo's README.
+
+## Why these plugins
+
+- **Honest by construction.** Any tool substitution or skipped step is stated
+  on the first line of the response, so you can trust what the agent reports.
+- **Token-lean.** A short `SKILL.md` routes to reference files that load only
+  when the task needs them. The agent does not carry the whole guide in
+  context.
+- **Portable.** One discipline across Claude Code, Cursor, Copilot, Gemini CLI,
+  OpenCode, and Codex, with no per-host retraining.
+- **Composable and pinned.** Generic skills give the base discipline; domain
+  skills extend it. Each plugin is released independently, so upgrading one
+  never moves another.
+
+## Author
+
+Built and maintained by Anton Babenko - [LinkedIn](https://linkedin.com/in/antonbabenko), [X/Twitter](https://x.com/antonbabenko).
 
 ## Contributing
 
-See [CONTRIBUTING.md](CONTRIBUTING.md) and [CLAUDE.md](CLAUDE.md). Report bugs
-or request features via
-[GitHub Issues](https://github.com/antonbabenko/agent-plugins/issues).
+The model and the test requirements are in [CONTRIBUTING.md](CONTRIBUTING.md).
 
 ## License
 
