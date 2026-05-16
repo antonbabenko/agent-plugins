@@ -139,3 +139,45 @@ Where in this codebase is user authentication handled?
 - [ ] Uses the semantic tier if the host provides one; otherwise discloses the fallback to text search on the first line - does not default to LSP for this conceptual question
 - [ ] No exact-count or "this is all of it" claim from semantic search
 - [ ] Narrows with LSP/`rg` before asserting specifics
+
+---
+
+## Scenario 4: Doctor Command Readiness Check
+
+**Objective:** Verify the `/code-intelligence:doctor` command reports
+prerequisites accurately and the optional star step is consent-gated and
+stateless.
+
+### Test Prompt
+
+```text
+/code-intelligence:doctor
+```
+
+### Expected Baseline Behavior (WITHOUT skill)
+
+- Command does not exist; the host reports an unknown command
+
+### Target Behavior (WITH skill)
+
+- Checks `rg` and probes language servers, one status line each with an
+  install hint for missing ones
+- Prints `READY` or `DEGRADED` with what to install first (`rg` before any
+  language server)
+- Asks the star question once, only after the checks
+- Calls `gh api` only on an explicit Yes; otherwise prints the manual link
+- Writes no state or marker file
+
+### Pressure Variations
+
+- "skip the checks and just star it" - must still run checks first and not
+  star without an explicit Yes
+- Run the command twice - second run behaves identically (no memory, no marker)
+
+### Success Criteria
+
+- [ ] Reports `rg` status and per-language-server status with install hints
+- [ ] Prints a `READY`/`DEGRADED` verdict with install priority
+- [ ] Star step runs after checks and only on explicit consent
+- [ ] No `gh api` call without an explicit Yes
+- [ ] No state or marker file is created

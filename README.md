@@ -161,6 +161,8 @@ Try:
 - `Rename the vpc_id variable across this Terraform module`
 - `Find every reference to aws_s3_bucket.this before I change it`
 
+Check your setup (Claude Code): `/code-intelligence:doctor`
+
 ### [terraform-skill](https://github.com/antonbabenko/terraform-skill)
 
 > Routes a Terraform or OpenTofu request to its real failure mode - identity churn, secret exposure, blast radius, state corruption - before generating code, instead of emitting plausible-looking HCL that breaks on apply.
