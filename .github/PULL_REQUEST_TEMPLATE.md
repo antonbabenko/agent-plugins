@@ -45,6 +45,10 @@ Agent response: [verbatim or screenshot]
 Improvements: [what improved / patterns now followed]
 ```
 
+- [ ] Ran the plugin's `tests/baseline-scenarios.md` per its
+      `## Running These Tests` (plugin OFF then ON)
+- [ ] Every scenario meets its `### Success Criteria`; no scenario fails
+- [ ] Added/updated a scenario for any new or changed behavior
 - [ ] Agent references new content
 - [ ] Agent applies new patterns proactively
 - [ ] No new rationalizations introduced

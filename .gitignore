@@ -1,3 +1,5 @@
 .claude/settings.local.json
 docs/
 tmp-*/
+.DS_Store
+*.swp

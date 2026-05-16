@@ -49,6 +49,9 @@ standards, and the per-plugin release model before contributing.
 3. `plugins/<plugin>/CHANGELOG.md` (may be empty; CI prepends to it).
 4. The manifest `version` must equal the SKILL.md `metadata.version`. CI
    enforces this.
+5. `plugins/<plugin>/tests/baseline-scenarios.md` is **required** and
+   CI-enforced (see Testing). It must contain at least one `## Scenario ...`,
+   a `## Running These Tests` protocol, and a `### Success Criteria` list.
 
 See CLAUDE.md "SKILL.md Architecture" and the "LLM Consumption Rules" for
 content shape and token discipline.
@@ -71,22 +74,55 @@ the squash commit subject is what drives the release; set it deliberately.
 
 ## Testing
 
-This is documentation, not code. There is no build. Validate locally with the
-commands in [CLAUDE.md](CLAUDE.md#validation), then verify behavior:
+Tests are **required**, not optional. This is documentation, not code, so
+"tests" are behavioral regression scenarios run against a real agent host.
 
-1. Reload the plugin in your agent host.
-2. Run real queries the skill targets.
-3. Confirm the agent applies the new patterns and introduces no new
-   rationalizations.
+**Every inline plugin must ship `plugins/<plugin>/tests/baseline-scenarios.md`**
+with this structure (CI fails the PR if it is missing or incomplete):
 
-Content PRs must include baseline (without change) and improved (with change)
-agent transcripts in the PR template.
+```text
+# Baseline Scenarios
+<intro: compare WITHOUT vs WITH the skill>
+
+## Running These Tests
+<the WITHOUT -> WITH -> compare -> gate protocol>
+
+## Scenario 1: <name>
+### Test Prompt
+### Expected Baseline Behavior (WITHOUT skill)
+### Target Behavior (WITH skill)
+### Pressure Variations
+### Success Criteria        <- checkbox list, the pass/fail bar
+## Scenario 2: ...
+```
+
+`plugins/code-intelligence/tests/baseline-scenarios.md` is the canonical
+example - copy its shape.
+
+**Every content PR must:**
+
+1. First validate locally with the commands in
+   [CLAUDE.md](CLAUDE.md#validation).
+2. Run the scenarios per that file's `## Running These Tests`: capture each
+   prompt's output with the plugin OFF (baseline), then ON (target).
+3. Confirm every scenario meets its `### Success Criteria` and introduces no
+   new rationalizations. A single failing scenario blocks the PR.
+4. When a PR adds or changes a behavior, add or update a scenario so the
+   behavior stays covered.
+5. Paste the baseline and target transcripts into the PR template (or `/tmp`) -
+   never commit them under `plugins/`.
 
 ## CI
 
 `validate.yml` runs on every PR touching `plugins/**` or `.claude-plugin/**`:
-frontmatter, size, manifest validity, manifest <-> SKILL.md version sync,
-broken links, and markdown lint. Fix failures before requesting review.
+frontmatter, size, **inline plugin tests present** (baseline-scenarios.md with
+scenarios + run protocol + success criteria), manifest validity, manifest <->
+SKILL.md version sync, broken links, and markdown lint.
+
+The **Validate Skill Files** check is a **required status check** on `master`
+(branch protection): a PR cannot be merged while it is failing. Every check
+above is blocking - markdown lint included (no `continue-on-error`). Fix all
+failures; do not request review or merge with a red check.
 
 ## Reporting Issues
 

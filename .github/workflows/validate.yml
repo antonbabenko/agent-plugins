@@ -80,6 +80,50 @@ jobs:
           print(f"\n✅ {len(skills)} inline skill file(s) valid")
           EOF
 
+      - name: Validate inline plugin tests
+        run: |
+          python3 << 'EOF'
+          import sys, glob, os
+
+          skills = sorted(glob.glob('plugins/*/skills/*/SKILL.md'))
+          if not skills:
+              print("ℹ️  No inline plugins - nothing to test-gate.")
+              sys.exit(0)
+
+          errors = []
+          for skill in skills:
+              plugin_root = skill.split('/skills/')[0]   # plugins/<plugin>
+              name = plugin_root.split('/', 1)[1]
+              tf = os.path.join(plugin_root, 'tests', 'baseline-scenarios.md')
+              if not os.path.isfile(tf):
+                  errors.append(f"{name}: missing {tf} (regression scenarios "
+                                "are required for inline plugins)")
+                  continue
+              text = open(tf).read()
+              n_scn = text.count('\n## Scenario ')
+              checks = {
+                  "a '## Scenario' section": n_scn >= 1,
+                  "a '## Running These Tests' section":
+                      '\n## Running These Tests' in text,
+                  "a '### Success Criteria' section":
+                      '\n### Success Criteria' in text,
+              }
+              missing = [why for why, ok in checks.items() if not ok]
+              if missing:
+                  errors.append(f"{name}: {tf} needs " + "; ".join(missing))
+              else:
+                  print(f"   ✅ {name}: {n_scn} scenario(s), run protocol present")
+
+          if errors:
+              print("\n".join(f"❌ {e}" for e in errors))
+              print("\nEvery inline plugin must ship "
+                    "tests/baseline-scenarios.md with at least one scenario, "
+                    "a '## Running These Tests' protocol, and "
+                    "'### Success Criteria'. See CONTRIBUTING.md > Testing.")
+              sys.exit(1)
+          print(f"\n✅ {len(skills)} inline plugin test suite(s) present")
+          EOF
+
       - name: Validate marketplace.json
         run: |
           python3 << 'EOF'
@@ -208,7 +252,6 @@ jobs:
             plugins/**/*.md
             README.md
             CONTRIBUTING.md
-        continue-on-error: true
 
       - name: Summary
         if: success()

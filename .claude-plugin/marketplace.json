@@ -33,6 +33,22 @@
         "terraform-ls"
       ],
       "version": "1.8.0"
+    },
+    {
+      "name": "code-intelligence",
+      "source": "./plugins/code-intelligence",
+      "description": "Use when navigating or refactoring code with a language server - choosing between semantic (LSP), exact-text (rg), and fuzzy/semantic search; anchoring LSP calls by position; gating degraded results; and disclosing tool substitutions, in any language.",
+      "category": "development",
+      "keywords": [
+        "lsp",
+        "code-intelligence",
+        "code-navigation",
+        "language-server",
+        "refactoring",
+        "search-precedence",
+        "tool-disclosure"
+      ],
+      "version": "0.1.0"
     }
   ]
 }
