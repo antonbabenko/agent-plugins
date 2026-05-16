@@ -34,11 +34,15 @@ Not every server implements every operation. `goToImplementation`, call
 hierarchy (`prepareCallHierarchy` / `incomingCalls` / `outgoingCalls`), and
 rename are commonly absent.
 
+- DO check advertised capabilities first. When the server supports `rename` /
+  `prepareRename` or call hierarchy, use it - it carries language semantics a
+  manual pass misses.
 - DON'T call an unsupported operation and report its absence as a finding.
-- DO redirect intent: use `findReferences` instead of incoming-call hierarchy;
-  enumerate references then edit by hand instead of a rename provider.
-- DO confirm support via the server's advertised capabilities or a language
-  skill that documents them, rather than guessing.
+- DO redirect only when the operation is genuinely unsupported: `findReferences`
+  (filtered to call sites) instead of call hierarchy; enumerate references then
+  edit by hand instead of a rename provider.
+- DON'T guess support - confirm via advertised capabilities or a language skill
+  that documents them.
 
 ## Reading Results
 

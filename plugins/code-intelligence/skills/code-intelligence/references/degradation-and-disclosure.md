@@ -5,8 +5,17 @@ prove a tool is really missing.
 
 ## Degradation Gate
 
-A degraded or unindexed workspace can legitimately return empty from a correct
-LSP call. Pass ALL three before claiming "LSP unavailable, using text search":
+First separate two cases:
+
+- **No LSP at all**: the host exposes no language-server tool, or the server
+  will not start. This is genuine unavailability - the gate does not apply.
+  Disclose on the first line (see Disclosure Format) and use text search.
+- **LSP callable, position-anchored call returns empty**: a degraded or
+  unindexed workspace can legitimately do this. Do not conclude "unavailable" -
+  run the gate.
+
+Gate (second case only). Pass ALL three before claiming "LSP degraded, using
+text search":
 
 1. `documentSymbol` on an in-scope file returns symbols. The server is
    responsive. This proves responsiveness ONLY, not complete reference

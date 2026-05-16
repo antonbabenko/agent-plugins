@@ -8,8 +8,9 @@ discovery. The three are not interchangeable.
 | Task | Tool | Why |
 |------|------|-----|
 | Where is this symbol defined? | LSP `goToDefinition` at a use site | Resolves scope, imports, shadowing - text search cannot |
-| Every reference / caller of a symbol | LSP `findReferences` at the symbol | Excludes same-named-but-unrelated tokens |
-| Rename safety | LSP `findReferences` then per-file edits | Text replace hits comments, strings, unrelated scopes |
+| Every reference of a symbol | LSP `findReferences` at the symbol | Excludes same-named-but-unrelated tokens; includes definition/imports/reads/writes, not only calls |
+| Callers specifically | LSP call hierarchy if the server supports it, else `findReferences` filtered to call sites | `findReferences` alone is broader than callers |
+| Rename | LSP `rename` / `prepareRename` if supported, else `findReferences` + per-file manual edits | Server rename carries language semantics; manual edits hit comments/strings/unrelated scopes if not filtered |
 | Exact literal, error string, config key | `rg` then Read | Deterministic, fast, complete for text |
 | Enumerate all matches / count occurrences | `rg` | Exact and exhaustive; semantic search drops matches |
 | "Where is auth handled?", "which module owns X" | Semantic/neural search (if host provides) | Intent-level, no exact symbol to anchor on |
@@ -44,4 +45,5 @@ token to anchor on: "where is rate limiting", "which package handles billing".
 
 Example: "find everywhere we validate JWTs" - semantic search points at the
 auth package; `rg 'jwt'` plus LSP `findReferences` on the verifier function
-gives the complete set.
+(see [Position Anchoring](lsp-calls.md#position-anchoring)) gives the complete
+set.

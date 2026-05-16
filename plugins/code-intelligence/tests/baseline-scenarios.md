@@ -4,11 +4,10 @@ Compare agent behavior WITHOUT vs WITH the code-intelligence skill. Run each
 prompt without the skill (baseline), then with it (target). Capture transcripts
 in the PR body or /tmp - never inside the plugin.
 
-> markdownlint note: MD024 (repeated `Test Prompt` / `Pressure Variations` /
-> `Success Criteria` sub-headings) is inherent to the multi-scenario format;
-> MD013 (line length) matches the repo's existing prose style. The repo ships
-> no markdownlint config and runs the linter with continue-on-error, so these
-> are advisory only and consistent with the existing repo docs.
+> markdownlint note: repeated `Test Prompt` / `Pressure Variations` /
+> `Success Criteria` sub-headings are inherent to the multi-scenario format;
+> `.markdownlint.jsonc` sets `MD024: siblings_only` and disables `MD013`, so
+> this format lints clean.
 
 ## Scenario 1: Find Callers and Rename Safely
 
@@ -114,6 +113,6 @@ Where in this codebase is user authentication handled?
 
 ### Success Criteria
 
-- [ ] Uses the semantic tier for the conceptual question, not LSP
+- [ ] Uses the semantic tier if the host provides one; otherwise discloses the fallback to text search on the first line - does not default to LSP for this conceptual question
 - [ ] No exact-count or "this is all of it" claim from semantic search
 - [ ] Narrows with LSP/`rg` before asserting specifics

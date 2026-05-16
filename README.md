@@ -58,8 +58,10 @@ directory, for example:
 
 ```bash
 git clone https://github.com/antonbabenko/agent-plugins.git
-# Claude Code (manual): symlink a plugin into ~/.claude/plugins
-ln -s "$(pwd)/agent-plugins/plugins/terraform-skill" ~/.claude/plugins/terraform-skill
+# Inline plugins live under plugins/<name>/ - symlink one into ~/.claude/plugins:
+ln -s "$(pwd)/agent-plugins/plugins/code-intelligence" ~/.claude/plugins/code-intelligence
+# External plugins (e.g. terraform-skill) are not in this repo - install them
+# from their own repo / marketplace ref instead.
 ```
 
 For per-host instructions (Cursor, Copilot, Gemini CLI, OpenCode, Codex,

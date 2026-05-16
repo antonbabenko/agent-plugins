@@ -34,23 +34,31 @@ Detail: [Precedence Table](references/tool-precedence.md#precedence-table),
   symbols, not the lines.
 - DO retry once on a cold start: the first call after launch may return empty
   while the server indexes.
-- DON'T report an unsupported operation as a finding. Not every server
-  implements implementation, call hierarchy, or rename. Redirect intent (use
-  references instead of call hierarchy).
+- DO prefer the server's own operation when it advertises it: use `rename` /
+  `prepareRename` for renames and call hierarchy for callers - they carry
+  language-specific semantics a manual pass misses.
+- DON'T report an unsupported operation as a finding. When the server lacks
+  one, redirect: `findReferences` (then filter to call sites) instead of call
+  hierarchy; enumerate references then hand-edit instead of a rename provider.
 
 Detail: [Position Anchoring](references/lsp-calls.md#position-anchoring),
 [Unsupported Operations](references/lsp-calls.md#unsupported-operations).
 
 ## Degradation Gate
 
-Pass ALL three before claiming "LSP unavailable, using text search instead":
+Two distinct cases:
 
-1. `documentSymbol` on an in-scope file returns symbols -> server is
-   responsive (responsiveness only, NOT proof of complete reference coverage).
-2. The failing call was position-anchored (not symbol-name-only).
-3. That anchored call still returned empty.
+- **No LSP at all** (host exposes no language-server tool, or the server fails
+  to start): that IS unavailability. Disclose it on the first line (see below)
+  and use text search. The gate does not apply - there is nothing to gate.
+- **LSP callable but a position-anchored call returns empty:** do NOT conclude
+  "unavailable" yet. Pass ALL three:
+  1. `documentSymbol` on an in-scope file returns symbols -> server responsive
+     (responsiveness only, NOT proof of complete reference coverage).
+  2. The failing call was position-anchored (not symbol-name-only).
+  3. That anchored call still returned empty after a cold-start retry.
 
-Only then is a disclosed text fallback warranted.
+Only after the three-part case passes is a disclosed text fallback warranted.
 
 Detail: [Degradation Gate](references/degradation-and-disclosure.md#degradation-gate).
 
