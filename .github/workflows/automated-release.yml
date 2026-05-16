@@ -167,27 +167,50 @@ jobs:
                   open(codex_path, 'a').write('\n')
                   print(f"   synced {codex_path} -> {new}")
 
-              # 3. plugins/<plugin>/CHANGELOG.md entry
+              # 3. plugins/<plugin>/CHANGELOG.md entry.
+              # Markdownlint-clean and idempotent: a stable `# Changelog`
+              # H1 + preamble stays on top, new version sections are
+              # inserted below it, single blank-line separators, `*`
+              # bullets only. Also repairs a previously malformed file.
               changelog_path = os.path.join(source, 'CHANGELOG.md')
               compare = ''
               if repo and last_tag:
-                  compare = (f" "
-                             f"([compare](https://github.com/{repo}/compare/"
+                  compare = (f" ([compare](https://github.com/{repo}/compare/"
                              f"{last_tag}...{name}-v{new}))")
-              section = [f"## {name}-v{new} ({date.today().isoformat()}){compare}\n\n"]
+              lines = [
+                  f"## {name}-v{new} "
+                  f"({date.today().isoformat()}){compare}", ""]
               if breaking:
-                  section.append("### BREAKING CHANGES\n\n")
+                  lines += ["### BREAKING CHANGES", ""]
               if feats:
-                  section.append("### Features\n\n")
-                  section += [f"* {d} ({h})\n" for h, d in feats]
-                  section.append("\n")
+                  lines += ["### Features", ""]
+                  lines += [f"* {d} ({h})" for h, d in feats]
+                  lines += [""]
               if fixes:
-                  section.append("### Bug Fixes\n\n")
-                  section += [f"* {d} ({h})\n" for h, d in fixes]
-                  section.append("\n")
-              entry = "".join(section)
-              prev = open(changelog_path).read() if os.path.exists(changelog_path) else ""
-              open(changelog_path, 'w').write(entry + "\n" + prev)
+                  lines += ["### Bug Fixes", ""]
+                  lines += [f"* {d} ({h})" for h, d in fixes]
+                  lines += [""]
+              entry = "\n".join(lines).strip()
+
+              default_header = (
+                  "# Changelog\n\n"
+                  f"All notable changes to the `{name}` plugin are "
+                  "documented here. This file is managed by the per-plugin "
+                  "release pipeline; entries are prepended on release.")
+              header, body = default_header, ''
+              if os.path.exists(changelog_path):
+                  old = open(changelog_path).read()
+                  cut = old.find('## ')   # first version section
+                  if old.lstrip().startswith('# ') and cut != -1:
+                      header = old[:cut].rstrip()
+                      body = old[cut:].strip()
+                  elif cut != -1:
+                      body = old[cut:].strip()   # drop stray preamble
+              parts = [header, "", entry]
+              if body:
+                  parts += ["", body]
+              open(changelog_path, 'w').write(
+                  "\n".join(parts).strip() + "\n")
 
               released.append({'name': name, 'version': new,
                                 'tag': f'{name}-v{new}', 'notes': entry})
