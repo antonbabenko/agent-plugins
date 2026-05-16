@@ -119,10 +119,14 @@ frontmatter, size, **inline plugin tests present** (baseline-scenarios.md with
 scenarios + run protocol + success criteria), manifest validity, manifest <->
 SKILL.md version sync, broken links, and markdown lint.
 
-The **Validate Skill Files** check is a **required status check** on `master`
-(branch protection): a PR cannot be merged while it is failing. Every check
-above is blocking - markdown lint included (no `continue-on-error`). Fix all
-failures; do not request review or merge with a red check.
+Every step in **Validate Skill Files** is blocking - markdown lint included
+(no `continue-on-error`). One red step fails the whole check.
+
+Merge policy: **do not merge a PR with a red `Validate Skill Files`.** This is
+enforced by policy and the visible failing check, not by a server-side merge
+block - the per-plugin release pipeline pushes version bumps straight to
+`master`, so a hard required-status-check on the branch would also block
+releases. Treat a red check as a hard stop anyway; fix it before merge.
 
 ## Reporting Issues
 
