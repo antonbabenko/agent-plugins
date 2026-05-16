@@ -5,7 +5,7 @@ Generic mechanics for driving a language server. Operation names follow LSP:
 `workspaceSymbol`, `goToImplementation`, call hierarchy. Availability is
 host-gated - the host decides whether an LSP tool is exposed at all.
 
-### Position Anchoring
+## Position Anchoring
 
 The server resolves by source position, not by symbol name.
 
@@ -19,7 +19,7 @@ Example: to find callers of `parseConfig`, `rg -n 'parseConfig'` to get a
 line, then `findReferences` at that line/column. Works the same whether the
 language is Go, Python, or TypeScript.
 
-### Cold Start And Retry
+## Cold Start And Retry
 
 The first call after the server launches may return empty or partial while it
 indexes the workspace.
@@ -28,7 +28,7 @@ indexes the workspace.
 - A still-empty result after retry feeds the degradation gate; it is not
   immediate proof the server is broken.
 
-### Unsupported Operations
+## Unsupported Operations
 
 Not every server implements every operation. `goToImplementation`, call
 hierarchy (`prepareCallHierarchy` / `incomingCalls` / `outgoingCalls`), and
@@ -40,7 +40,7 @@ rename are commonly absent.
 - DO confirm support via the server's advertised capabilities or a language
   skill that documents them, rather than guessing.
 
-### Reading Results
+## Reading Results
 
 LSP returns locations and symbols, not source lines.
 

@@ -9,10 +9,9 @@ metadata:
 
 # Code Intelligence
 
-Pick the search tool by task, not by habit. Use the language server for symbol
-meaning, exact-text search for literals, semantic search for fuzzy discovery.
-Language-agnostic. Language-specific skills extend this with server capability
-matrices and ecosystem prerequisites.
+Pick the search tool by task, not by habit. Generic and language-agnostic;
+domain skills extend it with server capability matrices and ecosystem
+prerequisites. It is model-triggered guidance, not enforcement.
 
 ## Tool Precedence
 
@@ -22,7 +21,7 @@ matrices and ecosystem prerequisites.
 | Exact text, known name, exhaustive enumeration, config/value files | `rg` then Read | No semantic scope; matches strings in comments too |
 | Conceptual / fuzzy / "where might this live" / cross-repo discovery | A semantic/neural search tool, if the host provides one | Not exact; never use for counts or completeness claims |
 
-Detail: [Tool Precedence](references/tool-precedence.md#precedence-table),
+Detail: [Precedence Table](references/tool-precedence.md#precedence-table),
 [When LSP Is Wrong](references/tool-precedence.md#when-lsp-is-wrong).
 
 ## Calling the LSP
@@ -31,15 +30,15 @@ Detail: [Tool Precedence](references/tool-precedence.md#precedence-table),
   text search for a known occurrence first.
 - DON'T pass a bare symbol name and expect resolution. A name-only call that
   returns empty is a usage defect, not server failure.
-- DO Read the returned locations to see source text; LSP returns locations and
-  symbols, not the lines themselves.
+- DO Read the returned locations for source text; LSP returns locations and
+  symbols, not the lines.
 - DO retry once on a cold start: the first call after launch may return empty
   while the server indexes.
 - DON'T report an unsupported operation as a finding. Not every server
   implements implementation, call hierarchy, or rename. Redirect intent (use
   references instead of call hierarchy).
 
-Detail: [LSP Calls](references/lsp-calls.md#position-anchoring),
+Detail: [Position Anchoring](references/lsp-calls.md#position-anchoring),
 [Unsupported Operations](references/lsp-calls.md#unsupported-operations).
 
 ## Degradation Gate
@@ -57,12 +56,10 @@ Detail: [Degradation Gate](references/degradation-and-disclosure.md#degradation-
 
 ## Disclose Substitutions
 
-Any tool substitution OR omission is stated on the FIRST line of the response,
-not in a later summary:
+State any tool substitution OR omission on the FIRST line of the response, not
+in a later summary (post-hoc accounting is a rule violation):
 
 `Intended: <tool>. Actual: <tool>. Reason: <why>. Impact: <completeness/confidence>.`
-
-Post-hoc accounting in a closing summary is a rule violation.
 
 Detail: [Disclosure Format](references/degradation-and-disclosure.md#disclosure-format).
 
@@ -73,21 +70,8 @@ Before claiming a tool (e.g. `rg`) is shimmed, aliased, or absent, prove it:
 expected banner. An unproven "tool is missing" claim followed by a fallback is
 a verification failure, not a sanctioned substitution.
 
-If the tool is genuinely absent or aliased: prefer the LSP for semantic tasks;
-for exact text use the host-approved text search; `git grep` / `grep` only as
-an explicitly disclosed last resort - never as the default substitute.
+If genuinely absent or aliased: prefer the LSP for semantic tasks; for exact
+text use the host-approved text search; `git grep` / `grep` only as an
+explicitly disclosed last resort, never the default substitute.
 
 Detail: [Anti-Phantom-Shim Proof](references/degradation-and-disclosure.md#anti-phantom-shim-proof).
-
-## Scope
-
-This is the generic discipline. Packaging it as a skill improves reuse and
-discoverability; it does NOT enforce the behavior - skills are
-model-triggered. A PreToolUse hook or a dedicated subagent gate is the
-enforcement mechanism and is out of scope here.
-
-## References
-
-- [Tool Precedence](references/tool-precedence.md) - precedence table, when LSP is the wrong tool, semantic-search scope
-- [LSP Calls](references/lsp-calls.md) - position anchoring, cold start, unsupported operations, reading results
-- [Degradation and Disclosure](references/degradation-and-disclosure.md) - the gate, disclosure format, anti-phantom-shim proof

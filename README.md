@@ -13,6 +13,31 @@ Plugins are either **external** (referenced from their own repo) or **inline**
 | Plugin | Type | Description |
 |--------|------|-------------|
 | [terraform-skill](https://github.com/antonbabenko/terraform-skill) | external | Writing, reviewing, and debugging Terraform/OpenTofu modules, tests, CI, scans, and state ops. Pinned via `source.ref`. |
+| [code-intelligence](plugins/code-intelligence/skills/code-intelligence/SKILL.md) | inline | Language-agnostic code navigation discipline: when to use a language server vs exact-text vs fuzzy search, position-anchored LSP calls, a degradation gate, and first-line tool-substitution disclosure. |
+
+## Why these plugins
+
+These are not prose guides - they are executable discipline the agent loads on
+demand and applies while it works.
+
+- **Fewer wrong tools, fewer silent failures.** `code-intelligence` stops the
+  common failure modes directly: blind text-replace renames, accepting "the
+  tool is broken" without proof, presenting a keyword grep as a complete
+  answer. `terraform-skill` routes a request to its actual failure mode
+  (identity churn, secret exposure, blast radius, state corruption) before
+  generating code.
+- **Honest by construction.** Any tool substitution or skipped step is stated
+  on the first line of the response, not buried later - so you can trust what
+  the agent says it did.
+- **Token-lean.** Progressive disclosure: a short `SKILL.md` entry point routes
+  to reference files that load only when the task needs them. The agent does
+  not carry the whole guide in context.
+- **Portable.** One discipline across Claude Code, Cursor, Copilot, Gemini CLI,
+  OpenCode, and Codex - no per-host retraining.
+- **Composable and pinned.** Generic skills (`code-intelligence`) provide the
+  base discipline; domain skills (`terraform-skill`) extend it. Each plugin is
+  versioned and released independently, so an upgrade to one never moves
+  another.
 
 ## Installation
 

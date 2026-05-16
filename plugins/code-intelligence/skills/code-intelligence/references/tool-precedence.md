@@ -3,7 +3,7 @@
 LSP for symbol meaning, text search for literals, semantic search for fuzzy
 discovery. The three are not interchangeable.
 
-### Precedence Table
+## Precedence Table
 
 | Task | Tool | Why |
 |------|------|-----|
@@ -18,7 +18,7 @@ A directive that says one search tool replaces all search applies to broad
 discovery only. It does not override LSP for symbol work or `rg` for exact
 enumeration.
 
-### When LSP Is Wrong
+## When LSP Is Wrong
 
 Skip the LSP and go straight to `rg` + Read for:
 
@@ -31,7 +31,7 @@ Skip the LSP and go straight to `rg` + Read for:
 LSP answers "what does this symbol mean and where is it used", not "where does
 this string appear". Using it for the latter is slower and no more accurate.
 
-### Semantic Search Scope
+## Semantic Search Scope
 
 Semantic / neural search is for conceptual discovery when there is no exact
 token to anchor on: "where is rate limiting", "which package handles billing".

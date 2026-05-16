@@ -1,0 +1,15 @@
+{
+  // Repo-wide markdownlint config. markdownlint-cli2 (the CI action)
+  // auto-discovers this file.
+  "default": true,
+  // Prose and tables in this repo intentionally exceed 80 cols (decision
+  // tables, links, scenario text). Line length is not a useful signal here.
+  "MD013": false,
+  // Baseline scenario docs repeat sub-headings ("Test Prompt",
+  // "Success Criteria", ...) under different scenario parents. Allow
+  // duplicates when they are not siblings.
+  "MD024": { "siblings_only": true },
+  // Table pipe spacing/alignment is cosmetic and varies across the repo's
+  // tables; not a useful signal (newer markdownlint only).
+  "MD060": false
+}

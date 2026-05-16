@@ -3,7 +3,7 @@
 What to prove before falling back, how to announce a fallback, and how to
 prove a tool is really missing.
 
-### Degradation Gate
+## Degradation Gate
 
 A degraded or unindexed workspace can legitimately return empty from a correct
 LSP call. Pass ALL three before claiming "LSP unavailable, using text search":
@@ -21,7 +21,7 @@ Distinguish: a name-only call returning empty is a usage defect (gate fails at
 2). A position-anchored call on a responsive server returning empty is genuine
 degradation (gate passes).
 
-### Disclosure Format
+## Disclosure Format
 
 State any tool substitution OR omission on the FIRST line of the response:
 
@@ -34,7 +34,7 @@ State any tool substitution OR omission on the FIRST line of the response:
 - One line, factual, no hedging. The impact clause states what confidence is
   lost (e.g. "text matches only, may include comments/strings").
 
-### Anti-Phantom-Shim Proof
+## Anti-Phantom-Shim Proof
 
 Do not claim a tool is shimmed, aliased, replaced, or missing without proof.
 Verify before asserting:
