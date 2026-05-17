@@ -159,6 +159,11 @@ this repo - install them from their own repo instead.
 | Find every reference to `aws_s3_bucket.this` before changing it | One regex; may over/under-match, then claims "found all" | Position-anchored `findReferences`; on an uninitialized workspace it says so on line 1 and discloses the `rg` fallback |
 | `rg` looks missing so the agent reaches for `grep` | Silent tool swap - you never learn coverage dropped | Proves the tool is really absent first; states the substitution on the first line |
 
+The semantic rows above need a language server installed (here `terraform-ls`).
+Without one the plugin still helps: it discloses the `rg` fallback on the first
+line instead of pretending the text search was exhaustive. Check your setup
+with `/code-intelligence:doctor`.
+
 ```bash
 /plugin install code-intelligence@antonbabenko
 ```
