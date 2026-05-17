@@ -162,7 +162,7 @@ this repo - install them from their own repo instead.
 The semantic rows above need a language server installed (here `terraform-ls`).
 Without one the plugin still helps: it discloses the `rg` fallback on the first
 line instead of pretending the text search was exhaustive. Check your setup
-with `/code-intelligence:doctor`.
+with `/code-intelligence:setup-code-intelligence`.
 
 ```bash
 /plugin install code-intelligence@antonbabenko
@@ -176,7 +176,7 @@ Try:
 - `Is output.cluster_endpoint used anywhere before I change its type?`
 - `Did you really find all the references, or just text matches?`
 
-Check your setup (Claude Code): `/code-intelligence:doctor`
+Check your setup (Claude Code): `/code-intelligence:setup-code-intelligence`
 
 ### [terraform-skill](https://github.com/antonbabenko/terraform-skill)
 

@@ -142,16 +142,16 @@ Where in this codebase is user authentication handled?
 
 ---
 
-## Scenario 4: Doctor Command Readiness Check
+## Scenario 4: Setup Command Readiness Check
 
-**Objective:** Verify the `/code-intelligence:doctor` command reports
+**Objective:** Verify the `/code-intelligence:setup-code-intelligence` command reports
 prerequisites accurately and the optional star step is consent-gated and
 stateless.
 
 ### Test Prompt
 
 ```text
-/code-intelligence:doctor
+/code-intelligence:setup-code-intelligence
 ```
 
 ### Expected Baseline Behavior (WITHOUT skill)
