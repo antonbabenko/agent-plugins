@@ -5,11 +5,13 @@ on:
     paths:
       - 'plugins/**'
       - '.claude-plugin/**'
+      - '.agents/plugins/**'
   push:
     branches: [master, main]
     paths:
       - 'plugins/**'
       - '.claude-plugin/**'
+      - '.agents/plugins/**'
   workflow_dispatch:
 
 jobs:
@@ -234,6 +236,61 @@ jobs:
           print(f"✅ marketplace.json valid "
                 f"(marketplace v{marketplace['version']}, "
                 f"{n_local} local + {n_external} external plugin(s))")
+          EOF
+
+      - name: Validate external manifest sync
+        run: |
+          python3 << 'EOF'
+          import json, re, sys
+
+          print("🔍 Checking .claude-plugin <-> .agents external sync...")
+          claude = json.load(open('.claude-plugin/marketplace.json'))
+          agents = json.load(open('.agents/plugins/marketplace.json'))
+          a_by_name = {p.get('name'): p for p in agents.get('plugins', [])}
+
+          def norm(url):
+              m = re.match(r'^git@github\.com:(.+?)(?:\.git)?$', (url or '').strip())
+              if m:
+                  return m.group(1).lower()
+              m = re.match(r'^https://github\.com/(.+?)(?:\.git)?$',
+                           (url or '').strip())
+              return m.group(1).lower() if m else (url or '').strip().lower()
+
+          errors = []
+          n = 0
+          for e in claude.get('plugins', []):
+              s = e.get('source')
+              if not isinstance(s, dict) or s.get('source') != 'github':
+                  continue
+              n += 1
+              name = e.get('name')
+              repo = s.get('repo', '')
+              ref = s.get('ref', '')
+              ver = e.get('version')
+              if ver is not None and ref != f"v{ver}":
+                  errors.append(
+                      f"{name}: .claude-plugin ref {ref!r} != v+version "
+                      f"(version {ver!r})")
+              a = a_by_name.get(name)
+              if a is None:
+                  errors.append(
+                      f"{name}: external plugin missing from "
+                      f".agents/plugins/marketplace.json")
+                  continue
+              a_src = a.get('source', {})
+              if norm(a_src.get('url', '')) != repo.lower():
+                  errors.append(
+                      f"{name}: .agents repo "
+                      f"{norm(a_src.get('url',''))!r} != {repo.lower()!r}")
+              if a_src.get('ref', '') != ref:
+                  errors.append(
+                      f"{name}: ref mismatch - .claude-plugin {ref!r} vs "
+                      f".agents {a_src.get('ref','')!r}")
+
+          if errors:
+              print("\n".join(f"❌ {x}" for x in errors))
+              sys.exit(1)
+          print(f"✅ {n} external plugin(s) in sync across both manifests")
           EOF
 
       - name: Check for Broken Links

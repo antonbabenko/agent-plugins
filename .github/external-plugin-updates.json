@@ -1,0 +1,9 @@
+{
+  "_comment": "Policy overlay for .github/scripts/update_external_plugins.py. External plugins are auto-discovered from .claude-plugin/marketplace.json (object source == github); they do NOT need an entry here. Add an entry under 'plugins' ONLY to deviate from defaults (e.g. allow prereleases, a non-semver tag pattern, or tags instead of releases). JSON (not YAML) so the updater needs no third-party deps.",
+  "defaults": {
+    "includePrereleases": false,
+    "tagPattern": "^v?(\\d+\\.\\d+\\.\\d+)$",
+    "source": "github-releases"
+  },
+  "plugins": {}
+}

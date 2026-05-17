@@ -53,8 +53,14 @@ sources, auto-clones + caches the referenced repo (see
 | `version` field | Optional, manual mirror of `source.ref` (NOT CI-managed) | Required, CI-managed, must equal SKILL.md `metadata.version` |
 
 `terraform-skill` is external: `antonbabenko/terraform-skill`, pinned by
-`source.ref`. Its content and tags (`vX.Y.Z`) live in that repo; to ship a
-newer version, bump `source.ref` and the mirrored `version` in the manifest.
+`source.ref`. Its content and tags (`vX.Y.Z`) live in that repo. Pins are
+bumped automatically: the scheduled `Update External Plugins` workflow
+(`.github/workflows/update-external-plugins.yml`) auto-discovers external
+entries from `.claude-plugin/marketplace.json`, resolves the latest upstream
+release, and opens a reviewable `chore(external-plugins): ...` PR updating
+`source.ref` in both manifests plus the mirrored `version`. Per-plugin
+overrides live in `.github/external-plugin-updates.json`; `validate.yml`
+cross-checks the two manifests stay in sync. Do not hand-bump.
 
 ## Adding a Plugin
 

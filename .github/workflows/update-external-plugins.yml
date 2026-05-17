@@ -1,0 +1,57 @@
+name: Update External Plugins
+
+# Auto-bump external-plugin pins (source.ref + mirrored version) when an
+# upstream publishes a newer release. Opens a reviewable chore(...) PR;
+# manifest-only chore commits do not trigger an agent-plugins release.
+
+on:
+  schedule:
+    - cron: '17 6 * * *'   # daily, 06:17 UTC
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  pull-requests: write
+
+concurrency:
+  group: update-external-plugins
+  cancel-in-progress: false
+
+jobs:
+  update:
+    name: Resolve and pin latest external releases
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.x'
+
+      - name: Update external plugin pins
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: python3 .github/scripts/update_external_plugins.py
+
+      - name: Open PR
+        uses: peter-evans/create-pull-request@5f6978faf089d4d20b00c7766989d076bb2fc7f1  # v8.1.1
+        with:
+          branch: automation/external-plugin-updates
+          base: master
+          commit-message: 'chore(external-plugins): update external plugin pins'
+          title: 'chore(external-plugins): update external plugin pins'
+          body: |
+            Automated external-plugin pin update.
+
+            Bumps `source.ref` in both manifests (and the mirrored
+            `version` in `.claude-plugin/marketplace.json`) to the latest
+            eligible upstream release. Manifest-only `chore:` change - no
+            agent-plugins release is triggered.
+
+            Review the diff against the upstream changelog before merging.
+          delete-branch: true
+          add-paths: |
+            .claude-plugin/marketplace.json
+            .agents/plugins/marketplace.json
