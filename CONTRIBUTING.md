@@ -33,12 +33,20 @@ standards, and the per-plugin release model before contributing.
 
 **External** (content + releases in its own repo) — manifest entry only:
 
-1. Add a `plugins[]` entry to `.claude-plugin/marketplace.json`: `name`,
-   `source: { "source": "github", "repo": "owner/repo", "ref": "vX.Y.Z" }`,
-   `description`, optional `category` / `keywords`, optional `version`
-   (manual mirror of the ref).
-2. No local content, CHANGELOG, tests, or scoped-commit release. Update by
-   bumping `source.ref` (and the mirrored `version`).
+1. Add a `plugins[]` entry to BOTH `.claude-plugin/marketplace.json`
+   (`source: { "source": "github", "repo": "owner/repo", "ref": "vX.Y.Z" }`
+   plus a mirrored top-level `version: "X.Y.Z"`) and
+   `.agents/plugins/marketplace.json` (Codex; same `name`, `ref`, no
+   `version`).
+2. No local content, CHANGELOG, tests, or scoped-commit release.
+3. **Do not hand-bump the pin.** The scheduled `Update External Plugins`
+   workflow (`.github/workflows/update-external-plugins.yml`) auto-discovers
+   every external entry, resolves the latest upstream release, and opens a
+   reviewable `chore(external-plugins): ...` PR that updates `source.ref` in
+   both manifests and the mirrored `version`. Override defaults (prereleases,
+   tag pattern, tags-vs-releases) per plugin in
+   `.github/external-plugin-updates.json`. CI cross-checks the two manifests
+   stay in sync.
 
 **Inline** (content lives here):
 
@@ -64,7 +72,9 @@ qualifies for a plugin when it changes release-worthy content under
 `plugins/<plugin>/` (anything except `tests/` and the CI-managed
 `CHANGELOG.md`), or when its subject is scoped to that plugin
 (`feat(<plugin>): ...`, back-compat). The commit **type** sets the bump.
-External plugins release upstream; update them here by bumping `source.ref`.
+External plugins release upstream; their pins are bumped automatically by the
+`Update External Plugins` workflow (a reviewable `chore(external-plugins): ...`
+PR), not by hand.
 
 | Qualifying commit type | Result |
 |------------------------|--------|
