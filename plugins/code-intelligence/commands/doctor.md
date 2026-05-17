@@ -55,6 +55,13 @@ themselves.
 | Terraform | `terraform-ls` | `brew install hashicorp/tap/terraform-ls` |
 | Lua | `lua-language-server` | `brew install lua-language-server` |
 
+**Claude Code users:** several language servers are also installable as LSP
+plugins from the `claude-code-lsps` marketplace, no manual binary needed -
+`/plugin marketplace add boostvolt/claude-code-lsps` then
+`/plugin install <server>@claude-code-lsps` (e.g.
+`terraform-ls@claude-code-lsps`). Prefer this on Claude Code; fall back to the
+binary install hints above otherwise.
+
 ## 4. Verdict
 
 - `rg` present AND at least one language server present -> print `READY`.
