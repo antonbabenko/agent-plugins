@@ -15,9 +15,13 @@ Agent Plugins is a plugin marketplace for Claude Code and OpenAI Codex.
 
 ### npx skills - recommended for any Agent Skills host
 
-Works with any compatible agent (Claude Code, Cursor, Copilot, Gemini CLI, OpenCode, Codex, and more):
+Works with any compatible agent (Claude Code, Cursor, Copilot, Gemini CLI, OpenCode, Codex, and more). Each command is independent - run the one(s) you want:
 
 ```bash
+# code-intelligence (this repo's inline skill)
+npx skills add https://github.com/antonbabenko/agent-plugins
+
+# terraform-skill (its own repo)
 npx skills add https://github.com/antonbabenko/terraform-skill
 ```
 
@@ -141,16 +145,24 @@ this repo - install them from their own repo instead.
 
 <!-- prettier-ignore-end -->
 
-> Do not also add `antonbabenko/terraform-skill` as a marketplace. It uses the
-> same marketplace name as this repo and the two will clash. Install
-> `terraform-skill` from here, or as a standalone skill from its own repo - not
-> both.
-
 ## Plugins
 
 ### code-intelligence
 
 > Stops blind text-replace renames and "the tool is broken" guesses: the agent picks language-server vs text vs fuzzy search correctly for the task, and says so on the first line when it has to swap one tool for another.
+
+**tldr** - what changes with the plugin:
+
+| Prompt | Without the plugin | With the plugin |
+|--------|--------------------|-----------------|
+| Rename `var.tags` to `var.resource_tags` across the module | Blind `grep`/replace - misses position scoping, collides with same-named symbols in child modules, no post-edit validate | terraform-ls has no rename provider, so it runs the safe manual workflow: `findReferences` at an anchored position -> fresh per-file Read -> edit -> `validate` |
+| Find every reference to `aws_s3_bucket.this` before changing it | One regex; may over/under-match, then claims "found all" | Position-anchored `findReferences`; on an uninitialized workspace it says so on line 1 and discloses the `rg` fallback |
+| `rg` looks missing so the agent reaches for `grep` | Silent tool swap - you never learn coverage dropped | Proves the tool is really absent first; states the substitution on the first line |
+
+The semantic rows above need a language server installed (here `terraform-ls`).
+Without one the plugin still helps: it discloses the `rg` fallback on the first
+line instead of pretending the text search was exhaustive. Check your setup
+with `/code-intelligence:doctor`.
 
 ```bash
 /plugin install code-intelligence@antonbabenko
@@ -158,14 +170,25 @@ this repo - install them from their own repo instead.
 
 Try:
 
-- `Rename the vpc_id variable across this Terraform module`
-- `Find every reference to aws_s3_bucket.this before I change it`
+- `I need to change var.vpc_id - what references it?`
+- `Where does local.name_prefix come from?`
+- `What can I set on this aws_s3_bucket resource?`
+- `Is output.cluster_endpoint used anywhere before I change its type?`
+- `Did you really find all the references, or just text matches?`
 
 Check your setup (Claude Code): `/code-intelligence:doctor`
 
 ### [terraform-skill](https://github.com/antonbabenko/terraform-skill)
 
 > Routes a Terraform or OpenTofu request to its real failure mode - identity churn, secret exposure, blast radius, state corruption - before generating code, instead of emitting plausible-looking HCL that breaks on apply.
+
+**tldr** - what changes with the plugin:
+
+| Prompt | Without the plugin | With the plugin |
+|--------|--------------------|-----------------|
+| Create a VPC module | Plausible HCL, no tests, no version guards | Routes to the failure mode first; module + native tests + version-aware guards |
+| Configure S3 backend with state locking | May emit DynamoDB locking (outdated) | TF 1.10+ S3 native `use_lockfile`; flags DynamoDB as no longer required |
+| Change a resource's address | Text rename -> destroy/recreate on apply | `moved` block + `plan` shows 0 destroy; blast radius checked before generating code |
 
 ```bash
 /plugin install terraform-skill@antonbabenko
