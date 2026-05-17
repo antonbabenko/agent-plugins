@@ -79,6 +79,7 @@ jobs:
           EOF
 
       - name: Open PR
+        id: cpr
         uses: peter-evans/create-pull-request@5f6978faf089d4d20b00c7766989d076bb2fc7f1  # v8.1.1
         with:
           branch: automation/external-plugin-updates
@@ -98,3 +99,18 @@ jobs:
           add-paths: |
             .claude-plugin/marketplace.json
             .agents/plugins/marketplace.json
+
+      - name: Auto-merge
+        # The inline "Validate manifest sync" step above is the gate: if it
+        # fails the workflow stops and no PR exists. Manifest-only chore PR
+        # -> no agent-plugins release. Squash-merge immediately.
+        if: >-
+          ${{ steps.cpr.outputs.pull-request-number != '' &&
+              (steps.cpr.outputs.pull-request-operation == 'created' ||
+               steps.cpr.outputs.pull-request-operation == 'updated') }}
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          PR: ${{ steps.cpr.outputs.pull-request-number }}
+        run: |
+          gh pr merge "$PR" --squash --delete-branch \
+            --subject 'chore(external-plugins): update external plugin pins'
