@@ -241,6 +241,11 @@ Bundled commands:
 - `/claude-delegator:ask-both` - GPT + Gemini in parallel, synthesized
 - `/claude-delegator:consensus` - iterate GPT + Gemini + Claude to consensus
 
+Use `consensus` when the plan must be right - GPT + Gemini + Claude iterate
+until all three sign off, ideal for high-stakes planning and design. Use the
+`ask-*` commands for a quicker single or parallel opinion when you just want a
+fast second take.
+
 `/setup` can also install short aliases (`/ask-gpt`, `/ask-gemini`,
 `/ask-both`, `/consensus`); opt-in, never overwrites an existing command.
 
