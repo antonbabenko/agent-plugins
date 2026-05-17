@@ -11,7 +11,9 @@ metadata:
 
 Pick the search tool by task, not by habit. Generic and language-agnostic;
 domain skills extend it with server capability matrices and ecosystem
-prerequisites. It is model-triggered guidance, not enforcement.
+prerequisites - for example the `terraform-skill` plugin (same marketplace)
+owns the terraform-ls capability matrix and Terraform setup. It is
+model-triggered guidance, not enforcement.
 
 ## Tool Precedence
 
