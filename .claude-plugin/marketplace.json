@@ -49,6 +49,29 @@
         "tool-disclosure"
       ],
       "version": "0.4.1"
+    },
+    {
+      "name": "claude-delegator",
+      "source": {
+        "source": "github",
+        "repo": "antonbabenko/claude-delegator",
+        "ref": "v1.6.0"
+      },
+      "description": "Use when you want a delegated second opinion or implementation from GPT (Codex) or Gemini - five expert subagents (Architect, Plan Reviewer, Scope Analyst, Code Reviewer, Security Analyst) and bundled ask-gpt/ask-gemini/ask-both/consensus commands, advisory (read-only) or implementation (write).",
+      "category": "development",
+      "keywords": [
+        "delegation",
+        "mcp",
+        "codex",
+        "gpt",
+        "gemini",
+        "experts",
+        "subagents",
+        "orchestration",
+        "code-review",
+        "architecture"
+      ],
+      "version": "1.6.0"
     }
   ]
 }
