@@ -30,5 +30,5 @@
   "name": "code-intelligence",
   "repository": "https://github.com/antonbabenko/agent-plugins",
   "skills": "./skills",
-  "version": "0.3.0"
+  "version": "0.3.1"
 }

@@ -4,7 +4,7 @@ description: Use when navigating or refactoring code with a language server - ch
 license: Apache-2.0
 metadata:
   author: Anton Babenko
-  version: 0.3.0
+  version: 0.3.1
 ---
 
 # Code Intelligence
