@@ -2,6 +2,12 @@
 
 All notable changes to the `code-intelligence` plugin are documented here. This file is managed by the per-plugin release pipeline; entries are prepended on release.
 
+## code-intelligence-v0.4.1 (2026-05-17) ([compare](https://github.com/antonbabenko/agent-plugins/compare/code-intelligence-v0.3.1...code-intelligence-v0.4.1))
+
+### Bug Fixes
+
+* rename doctor command to setup-code-intelligence (#14) (cba265b)
+
 ## code-intelligence-v0.4.0 (2026-05-17)
 
 ### BREAKING CHANGES
