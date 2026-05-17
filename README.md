@@ -32,6 +32,7 @@ npx skills add https://github.com/antonbabenko/terraform-skill
 
 /plugin install code-intelligence@antonbabenko
 /plugin install terraform-skill@antonbabenko
+/plugin install claude-delegator@antonbabenko
 ```
 
 ### Codex
@@ -41,7 +42,7 @@ codex plugin marketplace add antonbabenko/agent-plugins
 ```
 
 Then run `codex`, open `/plugins`, select **Agent Plugins**, and install
-`code-intelligence` or `terraform-skill`.
+`code-intelligence`, `terraform-skill`, or `claude-delegator`.
 
 For other hosts, expand below.
 
@@ -203,6 +204,47 @@ Try:
 
 Source and detail: [github.com/antonbabenko/terraform-skill](https://github.com/antonbabenko/terraform-skill).
 The full per-host install list lives in that repo's README.
+
+### [claude-delegator](https://github.com/antonbabenko/claude-delegator)
+
+> Gives the agent five GPT (Codex) and/or Gemini expert subagents - it
+> delegates the hard call (architecture, plan review, scope, code review,
+> security) instead of guessing alone, and synthesizes the result rather than
+> pasting it raw.
+
+**tldr** - what changes with the plugin:
+
+| Prompt | Without the plugin | With the plugin |
+|--------|--------------------|-----------------|
+| Is this auth flow secure? | One model's single take | Security Analyst expert reviews; verdict synthesized, not raw |
+| Review this migration plan | Self-review, same blind spots | Plan Reviewer expert validates before you execute |
+| Get GPT and Gemini to agree on this design | Manual back-and-forth | `consensus` iterates GPT + Gemini + Claude to a signed-off plan |
+
+Each expert runs advisory (read-only) or implementation (`workspace-write`).
+Maintained fork of `jarrodwatts/claude-delegator` (upstream inactive); MIT.
+
+```bash
+/plugin install claude-delegator@antonbabenko
+/claude-delegator:setup
+```
+
+Requires the [Codex CLI](https://github.com/openai/codex) and/or
+[Gemini CLI](https://github.com/google/gemini-cli); `/setup` guides you through
+it.
+
+Bundled commands:
+
+- `/claude-delegator:setup` - configure Codex/Gemini MCP servers + rules
+- `/claude-delegator:uninstall` - remove MCP config, rules, and aliases
+- `/claude-delegator:ask-gpt` - one-shot GPT (Codex) second opinion
+- `/claude-delegator:ask-gemini` - one-shot Gemini second opinion
+- `/claude-delegator:ask-both` - GPT + Gemini in parallel, synthesized
+- `/claude-delegator:consensus` - iterate GPT + Gemini + Claude to consensus
+
+`/setup` can also install short aliases (`/ask-gpt`, `/ask-gemini`,
+`/ask-both`, `/consensus`); opt-in, never overwrites an existing command.
+
+Source and detail: [github.com/antonbabenko/claude-delegator](https://github.com/antonbabenko/claude-delegator).
 
 ## Why these plugins
 

@@ -28,6 +28,19 @@
         "authentication": "ON_INSTALL"
       },
       "category": "Development"
+    },
+    {
+      "name": "claude-delegator",
+      "source": {
+        "source": "url",
+        "url": "git@github.com:antonbabenko/claude-delegator.git",
+        "ref": "v1.6.0"
+      },
+      "policy": {
+        "installation": "AVAILABLE",
+        "authentication": "ON_INSTALL"
+      },
+      "category": "Development"
     }
   ]
 }
