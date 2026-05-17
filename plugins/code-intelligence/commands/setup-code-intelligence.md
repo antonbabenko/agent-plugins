@@ -1,10 +1,10 @@
 ---
-name: doctor
+name: setup-code-intelligence
 description: Check code-intelligence prerequisites (ripgrep + a language server) and print install hints
 allowed-tools: Bash, AskUserQuestion
 ---
 
-# code-intelligence doctor
+# code-intelligence: setup & readiness check
 
 Run a one-shot readiness check for the `code-intelligence` skill, then offer an
 optional star. The skill picks LSP vs exact-text vs fuzzy search by task; it
