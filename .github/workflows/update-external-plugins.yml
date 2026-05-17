@@ -35,6 +35,49 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: python3 .github/scripts/update_external_plugins.py
 
+      - name: Validate manifest sync
+        run: |
+          python3 << 'EOF'
+          import json, re, sys
+          claude = json.load(open('.claude-plugin/marketplace.json'))
+          agents = json.load(open('.agents/plugins/marketplace.json'))
+          a_by_name = {p.get('name'): p for p in agents.get('plugins', [])}
+
+          def norm(url):
+              m = re.match(r'^git@github\.com:(.+?)(?:\.git)?$', (url or '').strip())
+              if m:
+                  return m.group(1).lower()
+              m = re.match(r'^https://github\.com/(.+?)(?:\.git)?$',
+                           (url or '').strip())
+              return m.group(1).lower() if m else (url or '').strip().lower()
+
+          errors = []
+          for e in claude.get('plugins', []):
+              s = e.get('source')
+              if not isinstance(s, dict) or s.get('source') != 'github':
+                  continue
+              name, repo = e.get('name'), s.get('repo', '')
+              ref, ver = s.get('ref', ''), e.get('version')
+              if ver is not None and ref != f"v{ver}":
+                  errors.append(f"{name}: ref {ref!r} != v+version {ver!r}")
+              a = a_by_name.get(name)
+              if a is None:
+                  errors.append(f"{name}: missing from .agents manifest")
+                  continue
+              a_src = a.get('source', {})
+              if norm(a_src.get('url', '')) != repo.lower():
+                  errors.append(f"{name}: .agents repo mismatch")
+              if a_src.get('ref', '') != ref:
+                  errors.append(
+                      f"{name}: ref mismatch claude {ref!r} vs "
+                      f".agents {a_src.get('ref','')!r}")
+
+          if errors:
+              print("\n".join(f"❌ {x}" for x in errors))
+              sys.exit(1)
+          print("✅ external manifests in sync")
+          EOF
+
       - name: Open PR
         uses: peter-evans/create-pull-request@5f6978faf089d4d20b00c7766989d076bb2fc7f1  # v8.1.1
         with:
