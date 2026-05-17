@@ -21,7 +21,7 @@
       "source": {
         "source": "url",
         "url": "git@github.com:antonbabenko/terraform-skill.git",
-        "ref": "v1.11.0"
+        "ref": "v1.12.0"
       },
       "policy": {
         "installation": "AVAILABLE",
