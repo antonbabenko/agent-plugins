@@ -33,19 +33,21 @@ standards, and the per-plugin release model before contributing.
 
 **External** (content + releases in its own repo) — manifest entry only:
 
-1. Add a `plugins[]` entry to BOTH `.claude-plugin/marketplace.json`
+1. Add a `plugins[]` entry to ALL THREE manifests:
+   `.claude-plugin/marketplace.json`
    (`source: { "source": "github", "repo": "owner/repo", "ref": "vX.Y.Z" }`
-   plus a mirrored top-level `version: "X.Y.Z"`) and
-   `.agents/plugins/marketplace.json` (Codex; same `name`, `ref`, no
-   `version`).
+   plus a mirrored top-level `version: "X.Y.Z"`),
+   `.agents/plugins/marketplace.json` (Codex), and
+   `.kiro/plugins/marketplace.json` (Kiro mirror) — same `name`/`ref`, no
+   `version` in the latter two.
 2. No local content, CHANGELOG, tests, or scoped-commit release.
 3. **Do not hand-bump the pin.** The scheduled `Update External Plugins`
    workflow (`.github/workflows/update-external-plugins.yml`) auto-discovers
    every external entry, resolves the latest upstream release, and opens a
    reviewable `chore(external-plugins): ...` PR that updates `source.ref` in
-   both manifests and the mirrored `version`. Override defaults (prereleases,
-   tag pattern, tags-vs-releases) per plugin in
-   `.github/external-plugin-updates.json`. CI cross-checks the two manifests
+   all three manifests and the mirrored `version`. Override defaults
+   (prereleases, tag pattern, tags-vs-releases) per plugin in
+   `.github/external-plugin-updates.json`. CI cross-checks the three manifests
    stay in sync.
 
 **Inline** (content lives here):
@@ -61,6 +63,10 @@ standards, and the per-plugin release model before contributing.
 5. `plugins/<plugin>/tests/baseline-scenarios.md` is **required** and
    CI-enforced (see Testing). It must contain at least one `## Scenario ...`,
    a `## Running These Tests` protocol, and a `### Success Criteria` list.
+6. Kiro Power (optional): with a `.codex-plugin/plugin.json` present, run
+   `python3 .github/scripts/build_power.py plugins/<plugin>` and commit the
+   generated `plugins/<plugin>/POWER.md`. It is CI-owned — never hand-edit;
+   the release pipeline regenerates it and `validate.yml` `--check`s it.
 
 See CLAUDE.md "SKILL.md Architecture" and the "LLM Consumption Rules" for
 content shape and token discipline.
@@ -130,11 +136,13 @@ example - copy its shape.
 
 ## CI
 
-`validate.yml` runs on every PR touching `plugins/**` or `.claude-plugin/**`:
+`validate.yml` runs on every PR touching `plugins/**`, `.claude-plugin/**`,
+`.agents/plugins/**`, `.kiro/plugins/**`, or `.github/scripts/**`:
 frontmatter, size, **inline plugin tests present** (baseline-scenarios.md with
 scenarios + run protocol + success criteria), manifest validity, manifest <->
-SKILL.md <-> `.codex-plugin/plugin.json` version sync, broken links, and
-markdown lint.
+SKILL.md <-> `.codex-plugin/plugin.json` version sync, **POWER.md (Kiro)
+regenerated and in sync**, **three-manifest external sync**
+(`.claude-plugin` <-> `.agents` <-> `.kiro`), broken links, and markdown lint.
 
 Every step in **Validate Skill Files** is blocking - markdown lint included
 (no `continue-on-error`). One red step fails the whole check.

@@ -41,7 +41,9 @@ jobs:
           import json, re, sys
           claude = json.load(open('.claude-plugin/marketplace.json'))
           agents = json.load(open('.agents/plugins/marketplace.json'))
+          kiro = json.load(open('.kiro/plugins/marketplace.json'))
           a_by_name = {p.get('name'): p for p in agents.get('plugins', [])}
+          k_by_name = {p.get('name'): p for p in kiro.get('plugins', [])}
 
           def norm(url):
               m = re.match(r'^git@github\.com:(.+?)(?:\.git)?$', (url or '').strip())
@@ -71,6 +73,17 @@ jobs:
                   errors.append(
                       f"{name}: ref mismatch claude {ref!r} vs "
                       f".agents {a_src.get('ref','')!r}")
+              k = k_by_name.get(name)
+              if k is None:
+                  errors.append(f"{name}: missing from .kiro manifest")
+                  continue
+              k_src = k.get('source', {})
+              if norm(k_src.get('url', '')) != repo.lower():
+                  errors.append(f"{name}: .kiro repo mismatch")
+              if k_src.get('ref', '') != ref:
+                  errors.append(
+                      f"{name}: ref mismatch claude {ref!r} vs "
+                      f".kiro {k_src.get('ref','')!r}")
 
           if errors:
               print("\n".join(f"❌ {x}" for x in errors))
@@ -89,8 +102,9 @@ jobs:
           body: |
             Automated external-plugin pin update.
 
-            Bumps `source.ref` in both manifests (and the mirrored
-            `version` in `.claude-plugin/marketplace.json`) to the latest
+            Bumps `source.ref` in all three manifests (`.claude-plugin`,
+            `.agents`, `.kiro`) plus the mirrored `version` in
+            `.claude-plugin/marketplace.json` to the latest
             eligible upstream release. Manifest-only `chore:` change - no
             agent-plugins release is triggered.
 
@@ -99,6 +113,7 @@ jobs:
           add-paths: |
             .claude-plugin/marketplace.json
             .agents/plugins/marketplace.json
+            .kiro/plugins/marketplace.json
 
       - name: Auto-merge
         # The inline "Validate manifest sync" step above is the gate: if it

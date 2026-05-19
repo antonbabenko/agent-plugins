@@ -6,12 +6,16 @@ on:
       - 'plugins/**'
       - '.claude-plugin/**'
       - '.agents/plugins/**'
+      - '.kiro/plugins/**'
+      - '.github/scripts/**'
   push:
     branches: [master, main]
     paths:
       - 'plugins/**'
       - '.claude-plugin/**'
       - '.agents/plugins/**'
+      - '.kiro/plugins/**'
+      - '.github/scripts/**'
   workflow_dispatch:
 
 jobs:
@@ -124,6 +128,48 @@ jobs:
                     "'### Success Criteria'. See CONTRIBUTING.md > Testing.")
               sys.exit(1)
           print(f"\n✅ {len(skills)} inline plugin test suite(s) present")
+          EOF
+
+      - name: Validate inline POWER.md (Kiro) sync
+        run: |
+          python3 << 'EOF'
+          import glob, os, subprocess, sys
+          import yaml
+
+          powers = sorted(glob.glob('plugins/*/POWER.md'))
+          if not powers:
+              print("ℹ️  No inline POWER.md files - nothing to check.")
+              sys.exit(0)
+
+          errors = []
+          for power in powers:
+              plugin_dir = os.path.dirname(power)
+              r = subprocess.run(
+                  ['python3', '.github/scripts/build_power.py',
+                   plugin_dir, '--check'],
+                  capture_output=True, text=True)
+              if r.returncode != 0:
+                  errors.append(f"{power}: out of sync - "
+                                f"{(r.stdout + r.stderr).strip()}")
+                  continue
+              fm = yaml.safe_load(
+                  open(power).read().split('---', 2)[1])
+              need = {'name', 'displayName', 'description', 'keywords',
+                      'author', 'version'} - set(fm.keys())
+              if need:
+                  errors.append(f"{power}: frontmatter missing {need}")
+              elif not (isinstance(fm['keywords'], list) and fm['keywords']):
+                  errors.append(f"{power}: keywords must be a non-empty list")
+              else:
+                  print(f"   ✅ {power} in sync "
+                        f"(v{fm['version']}, {len(fm['keywords'])} keywords)")
+
+          if errors:
+              print("\n".join(f"❌ {e}" for e in errors))
+              print("\nPOWER.md is generated from SKILL.md. Regenerate: "
+                    "python3 .github/scripts/build_power.py <plugin_dir>")
+              sys.exit(1)
+          print(f"\n✅ {len(powers)} inline POWER.md file(s) in sync")
           EOF
 
       - name: Validate marketplace.json
@@ -243,10 +289,12 @@ jobs:
           python3 << 'EOF'
           import json, re, sys
 
-          print("🔍 Checking .claude-plugin <-> .agents external sync...")
+          print("🔍 Checking .claude-plugin <-> .agents <-> .kiro sync...")
           claude = json.load(open('.claude-plugin/marketplace.json'))
           agents = json.load(open('.agents/plugins/marketplace.json'))
+          kiro = json.load(open('.kiro/plugins/marketplace.json'))
           a_by_name = {p.get('name'): p for p in agents.get('plugins', [])}
+          k_by_name = {p.get('name'): p for p in kiro.get('plugins', [])}
 
           def norm(url):
               m = re.match(r'^git@github\.com:(.+?)(?:\.git)?$', (url or '').strip())
@@ -286,11 +334,27 @@ jobs:
                   errors.append(
                       f"{name}: ref mismatch - .claude-plugin {ref!r} vs "
                       f".agents {a_src.get('ref','')!r}")
+              k = k_by_name.get(name)
+              if k is None:
+                  errors.append(
+                      f"{name}: external plugin missing from "
+                      f".kiro/plugins/marketplace.json")
+                  continue
+              k_src = k.get('source', {})
+              if norm(k_src.get('url', '')) != repo.lower():
+                  errors.append(
+                      f"{name}: .kiro repo "
+                      f"{norm(k_src.get('url',''))!r} != {repo.lower()!r}")
+              if k_src.get('ref', '') != ref:
+                  errors.append(
+                      f"{name}: ref mismatch - .claude-plugin {ref!r} vs "
+                      f".kiro {k_src.get('ref','')!r}")
 
           if errors:
               print("\n".join(f"❌ {x}" for x in errors))
               sys.exit(1)
-          print(f"✅ {n} external plugin(s) in sync across both manifests")
+          print(f"✅ {n} external plugin(s) in sync across all three "
+                f"manifests")
           EOF
 
       - name: Check for Broken Links
@@ -317,6 +381,7 @@ jobs:
         with:
           globs: |
             plugins/**/*.md
+            !plugins/**/POWER.md
             README.md
             CONTRIBUTING.md
 

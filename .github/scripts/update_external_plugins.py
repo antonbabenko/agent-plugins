@@ -9,6 +9,9 @@ For each external plugin, resolve the latest eligible upstream release tag and,
 if newer than the pinned ref, rewrite atomically:
   - .claude-plugin: entry.source.ref = vX.Y.Z   AND  entry.version = X.Y.Z
   - .agents:        entry.source.ref = vX.Y.Z   (no version field)
+  - .kiro:          entry.source.ref = vX.Y.Z   (no version field; mirror of
+                    .agents - Kiro does not consume this manifest for install
+                    today, it is kept in sync for pattern parity / drift guard)
 
 No third-party deps (stdlib only). Real errors exit non-zero; "nothing to do"
 exits 0. `--dry-run` prints intended changes without writing.
@@ -33,6 +36,7 @@ import urllib.request
 
 CLAUDE_MANIFEST = ".claude-plugin/marketplace.json"
 AGENTS_MANIFEST = ".agents/plugins/marketplace.json"
+KIRO_MANIFEST = ".kiro/plugins/marketplace.json"
 POLICY_FILE = ".github/external-plugin-updates.json"
 
 DEFAULTS = {
@@ -159,6 +163,8 @@ def main() -> int:
     claude = load_json(CLAUDE_MANIFEST)
     agents = load_json(AGENTS_MANIFEST)
     agents_by_name = {p.get("name"): p for p in agents.get("plugins", [])}
+    kiro = load_json(KIRO_MANIFEST)
+    kiro_by_name = {p.get("name"): p for p in kiro.get("plugins", [])}
 
     changed = []
     for entry in claude.get("plugins", []):
@@ -179,6 +185,15 @@ def main() -> int:
             fail(f"{name}: {AGENTS_MANIFEST} repo {a_repo!r} != "
                  f"{repo!r} ({CLAUDE_MANIFEST})")
 
+        k = kiro_by_name.get(name)
+        if k is None:
+            fail(f"{name}: no matching entry in {KIRO_MANIFEST}")
+        k_src = k.get("source", {})
+        k_repo = normalize_repo(k_src.get("url", ""))
+        if k_repo.lower() != repo.lower():
+            fail(f"{name}: {KIRO_MANIFEST} repo {k_repo!r} != "
+                 f"{repo!r} ({CLAUDE_MANIFEST})")
+
         cfg = {**pdefaults, **(poverrides.get(name) or {})}
         ver, tag = latest_version(repo, cfg)
         cur_ref = src.get("ref", "")
@@ -192,6 +207,7 @@ def main() -> int:
         src["ref"] = tag
         entry["version"] = ver           # mirrored, no leading v
         a_src["ref"] = tag               # .agents: ref only
+        k_src["ref"] = tag               # .kiro: ref only (mirror)
 
     if not changed:
         print("Nothing to update.")
@@ -207,7 +223,9 @@ def main() -> int:
 
     write_json(CLAUDE_MANIFEST, claude)
     write_json(AGENTS_MANIFEST, agents)
-    print(f"\nUpdated {CLAUDE_MANIFEST} and {AGENTS_MANIFEST}.")
+    write_json(KIRO_MANIFEST, kiro)
+    print(f"\nUpdated {CLAUDE_MANIFEST}, {AGENTS_MANIFEST}, "
+          f"and {KIRO_MANIFEST}.")
     return 0
 
 
