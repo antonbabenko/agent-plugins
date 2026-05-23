@@ -1,9 +1,9 @@
 ---
-name: code-intelligence
-displayName: Code Intelligence
+name: "code-intelligence"
+displayName: "Code Intelligence"
 description: "Use when navigating or refactoring code with a language server - choosing between semantic (LSP), exact-text (rg), and fuzzy/semantic search; anchoring LSP calls by position; gating degraded results; and disclosing tool substitutions, in any language."
-keywords: [code-intelligence, code-navigation, language-server, lsp, refactoring, search-precedence, tool-disclosure]
-author: Anton Babenko
+keywords: ["code-intelligence", "code-navigation", "language-server", "lsp", "refactoring", "search-precedence", "tool-disclosure"]
+author: "Anton Babenko"
 version: 0.4.1
 ---
 

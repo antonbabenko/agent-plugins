@@ -87,13 +87,17 @@ def build_power(plugin_dir):
     rewritten = re.sub(r"^\n+", "", rewritten)
     rewritten = re.sub(r"\s*$", "", rewritten)
 
+    # Quote free-text scalars + every keyword so a future value containing a
+    # YAML-sensitive char (:, #, [, etc.) cannot break frontmatter parsing.
+    # version stays unquoted: a CI-controlled multi-dot semver is always a
+    # YAML string and validate.yml reads it directly.
     front = "\n".join([
         "---",
-        f"name: {meta['name']}",
-        f"displayName: {display_name}",
+        f"name: {yaml_dq(meta['name'])}",
+        f"displayName: {yaml_dq(display_name)}",
         f"description: {yaml_dq(meta['description'])}",
-        f"keywords: [{', '.join(keywords)}]",
-        f"author: {meta['author']}",
+        f"keywords: [{', '.join(yaml_dq(k) for k in keywords)}]",
+        f"author: {yaml_dq(meta['author'])}",
         f"version: {meta['version']}",
         "---",
     ])
