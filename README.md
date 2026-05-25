@@ -207,7 +207,7 @@ The full per-host install list lives in that repo's README.
 
 ### [claude-delegator](https://github.com/antonbabenko/claude-delegator)
 
-> Gives the agent five GPT (Codex) and/or Gemini expert subagents - it
+> Gives the agent five GPT (Codex), Gemini, and Grok (xAI) expert subagents - it
 > delegates the hard call (architecture, plan review, scope, code review,
 > security) instead of guessing alone, and synthesizes the result rather than
 > pasting it raw.
@@ -218,36 +218,44 @@ The full per-host install list lives in that repo's README.
 |--------|--------------------|-----------------|
 | Is this auth flow secure? | One model's single take | Security Analyst expert reviews; verdict synthesized, not raw |
 | Review this migration plan | Self-review, same blind spots | Plan Reviewer expert validates before you execute |
-| Get GPT and Gemini to agree on this design | Manual back-and-forth | `consensus` iterates GPT + Gemini + Claude to a signed-off plan |
+| Get GPT, Gemini, and Grok to agree on this design | Manual back-and-forth | `consensus` runs an arbiter-mediated GPT + Gemini + Grok + Claude loop to a signed-off plan |
 
 Each expert runs advisory (read-only) or implementation (`workspace-write`).
-Maintained fork of `jarrodwatts/claude-delegator` (upstream inactive); MIT.
 
 ```bash
 /plugin install claude-delegator@antonbabenko
 /claude-delegator:setup
 ```
 
-Requires the [Codex CLI](https://github.com/openai/codex) and/or
-[Gemini CLI](https://github.com/google/gemini-cli); `/setup` guides you through
-it.
+Requires at least one provider: [Codex CLI](https://github.com/openai/codex), [~~Gemini~~ Antigravity CLI](https://antigravity.google/docs/gcli-migration), or [Grok (xAI)](https://docs.x.ai/overview); `/setup` guides you through it. Grok is advisory-only (it reviews and votes but cannot change files and write code).
 
 Bundled commands:
 
-- `/claude-delegator:setup` - configure Codex/Gemini MCP servers + rules
-- `/claude-delegator:uninstall` - remove MCP config, rules, and aliases
+### 🔥 Magic happens here 🔥
+
+- `/claude-delegator:consensus` - arbiter-mediated GPT + Gemini + Grok + Claude convergence loop. Relentlessly arguing, as if they have nothing else to do!
+
+### Ask once
+
 - `/claude-delegator:ask-gpt` - one-shot GPT (Codex) second opinion
 - `/claude-delegator:ask-gemini` - one-shot Gemini second opinion
-- `/claude-delegator:ask-both` - GPT + Gemini in parallel, synthesized
-- `/claude-delegator:consensus` - iterate GPT + Gemini + Claude to consensus
+- `/claude-delegator:ask-grok` - one-shot Grok (xAI) second opinion (advisory-only)
+- `/claude-delegator:ask-all` - GPT + Gemini + Grok in parallel, synthesized
 
-Use `consensus` when the plan must be right - GPT + Gemini + Claude iterate
-until all three sign off, ideal for high-stakes planning and design. Use the
-`ask-*` commands for a quicker single or parallel opinion when you just want a
-fast second take.
+### Setup and Maintainance
 
-`/setup` can also install short aliases (`/ask-gpt`, `/ask-gemini`,
-`/ask-both`, `/consensus`); opt-in, never overwrites an existing command.
+- `/claude-delegator:setup` - configure Codex/Gemini/Grok MCP servers + rules
+- `/claude-delegator:uninstall` - remove MCP config, rules, and aliases
+- `/claude-delegator:grok-files` - list or prune Grok-uploaded files (storage cleanup)
+
+Use `consensus` when the plan must be right - the external models vote and
+Claude adjudicates to agreement, ideal for high-stakes planning and design. Use
+the `ask-*` commands for a quicker single or parallel opinion when you just want
+a fast second take.
+
+`/setup` can also install short aliases (`/ask-gpt`, `/ask-gemini`, `/ask-grok`,
+`/ask-all`, `/consensus`, `/grok-files`); opt-in, never overwrites an existing
+command.
 
 Source and detail: [github.com/antonbabenko/claude-delegator](https://github.com/antonbabenko/claude-delegator).
 
@@ -258,7 +266,7 @@ Source and detail: [github.com/antonbabenko/claude-delegator](https://github.com
 - **Token-lean.** A short `SKILL.md` routes to reference files that load only
   when the task needs them. The agent does not carry the whole guide in
   context.
-- **Portable.** One discipline across Claude Code, Cursor, Copilot, Gemini CLI,
+- **Portable.** One discipline across Claude Code, Cursor, Copilot, Antigravity CLI,
   OpenCode, and Codex, with no per-host retraining.
 - **Composable and pinned.** Generic skills give the base discipline; domain
   skills extend it. Each plugin is released independently, so upgrading one
