@@ -57,7 +57,7 @@
         "repo": "antonbabenko/claude-delegator",
         "ref": "v1.13.0"
       },
-      "description": "Use when you want a delegated second opinion or implementation from GPT (Codex), Gemini, or Grok (xAI) - five expert subagents (Architect, Plan Reviewer, Scope Analyst, Code Reviewer, Security Analyst) and bundled ask-gpt/ask-gemini/ask-grok/ask-all/consensus commands, advisory (read-only) or implementation (write; Grok is advisory-only).",
+      "description": "Use when you want a delegated second opinion or implementation from GPT (Codex), Gemini, or Grok (xAI) - seven expert subagents (Architect, Plan Reviewer, Scope Analyst, Code Reviewer, Security Analyst, Researcher, Debugger) and bundled ask-gpt/ask-gemini/ask-grok/ask-all/consensus commands, advisory (read-only) or implementation (write; Grok is advisory-only).",
       "category": "development",
       "keywords": [
         "delegation",

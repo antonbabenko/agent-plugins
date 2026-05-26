@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Social preview</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  html, body { width: 1280px; height: 640px; }
+  body {
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    background: #ffffff;
+    color: #0f172a;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+  .card {
+    width: 1280px;
+    height: 640px;
+    position: relative;
+    border: 1px solid #e5e7eb;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 60px 70px;
+  }
+  .top-block { margin-bottom: 48px; }
+  .accent {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 9px;
+    background: #5865F2;
+  }
+  .top-block {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: 100%;
+  }
+  .owner {
+    font-size: 24px;
+    font-weight: 500;
+    color: #9ca3af;
+    margin-bottom: 36px;
+    letter-spacing: 0.01em;
+  }
+  .owner-repo {
+    color: #6b7280;
+    font-weight: 600;
+  }
+  .title {
+    font-size: 84px;
+    font-weight: 800;
+    color: #0f172a;
+    line-height: 1.02;
+    letter-spacing: -0.025em;
+    margin-bottom: 36px;
+    text-align: center;
+  }
+  .subtitle {
+    font-size: 26px;
+    font-weight: 400;
+    color: #4b5563;
+    line-height: 1.45;
+    max-width: 1080px;
+    text-align: center;
+    margin-bottom: 24px;
+  }
+  .meta {
+    font-size: 21px;
+    font-weight: 500;
+    color: #6b7280;
+    line-height: 1.4;
+    max-width: 1080px;
+    text-align: center;
+    letter-spacing: 0;
+  }
+  .meta-sep {
+    color: #cbd5e1;
+    margin: 0 10px;
+    font-weight: 400;
+  }
+  .tags {
+    display: flex;
+    gap: 18px;
+    justify-content: center;
+    flex-wrap: nowrap;
+  }
+  .tag {
+    padding: 11px 24px;
+    border-radius: 9999px;
+    font-size: 20px;
+    font-weight: 600;
+    letter-spacing: -0.005em;
+    white-space: nowrap;
+  }
+  .tag-pink   { background: #fee2e2; color: #b91c1c; }
+  .tag-green  { background: #dcfce7; color: #15803d; }
+  .tag-blue   { background: #dbeafe; color: #1d4ed8; }
+  .tag-purple { background: #ede9fe; color: #6d28d9; }
+  .tag-yellow { background: #fef3c7; color: #a16207; }
+</style>
+</head>
+<body>
+<div class="card">
+  <div class="accent"></div>
+  <div class="top-block">
+    <div class="owner">antonbabenko <span class="owner-repo">/ agent-plugins</span></div>
+    <h1 class="title">Agent Plugins for AI Agents</h1>
+    <p class="subtitle">A collection of agent plugins for improving productivity, automating workflows, and making AI coding agents work better together.</p>
+    <p class="meta"><span>Claude Code</span><span class="meta-sep">·</span><span>Codex</span><span class="meta-sep">·</span><span>Cursor</span><span class="meta-sep">·</span><span>Antigravity</span><span class="meta-sep">·</span><span>Copilot</span><span class="meta-sep">·</span><span>OpenCode</span></p>
+  </div>
+  <div class="tags">
+    <span class="tag tag-pink">skills</span>
+    <span class="tag tag-purple">marketplace</span>
+    <span class="tag tag-green">mcp</span>
+    <span class="tag tag-blue">plugins</span>
+    <span class="tag tag-yellow">cli</span>
+  </div>
+</div>
+</body>
+</html>
