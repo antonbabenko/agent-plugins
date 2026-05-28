@@ -34,7 +34,7 @@
       "source": {
         "source": "url",
         "url": "git@github.com:antonbabenko/claude-delegator.git",
-        "ref": "v1.15.1"
+        "ref": "v1.15.2"
       },
       "policy": {
         "installation": "AVAILABLE",
