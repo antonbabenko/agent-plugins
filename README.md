@@ -130,6 +130,34 @@ Update with `git pull` in each clone.
 </details>
 
 <details>
+<summary>Kiro (Powers)</summary>
+
+These skills are also [Kiro Powers](https://kiro.dev/docs/powers/) (a
+`POWER.md` generated from the same `SKILL.md` - shared content, not forked).
+In Kiro: **Powers panel → "Add power from GitHub"**, then paste:
+
+```text
+# terraform-skill (root POWER.md; bundles optional read-only terraform-mcp-server)
+https://github.com/antonbabenko/terraform-skill
+
+# code-intelligence (POWER.md under the plugin subdir)
+https://github.com/antonbabenko/agent-plugins/tree/master/plugins/code-intelligence
+```
+
+Kiro activates a power on keyword match (e.g. "terraform", "lsp", "rename").
+
+> Notes. Kiro installs a power from a GitHub repo URL, not from a marketplace
+> manifest - the `.kiro/plugins/marketplace.json` in this repo mirrors the
+> `.agents`/`.claude-plugin` manifests for pin-sync parity only; Kiro does not
+> consume it for install today. Kiro discovering a `POWER.md` under a
+> subdirectory (the `code-intelligence` path above) is the documented install
+> shape; if your Kiro build only accepts a repo-root `POWER.md`, clone the repo
+> and install `code-intelligence` from the local `plugins/code-intelligence`
+> path instead.
+
+</details>
+
+<details>
 <summary>Manual (Claude Code - symlink a local clone)</summary>
 
 ```bash

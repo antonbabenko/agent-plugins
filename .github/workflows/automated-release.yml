@@ -19,6 +19,7 @@ name: Automated Release
 #   - bumps plugins[].version in marketplace.json
 #   - syncs that plugin's SKILL.md metadata.version
 #   - syncs that plugin's .codex-plugin/plugin.json version (if present)
+#   - regenerates that plugin's POWER.md (Kiro) from SKILL.md (if present)
 #   - prepends an entry to plugins/<plugin>/CHANGELOG.md
 #   - tags <plugin>-vX.Y.Z and creates a GitHub Release
 
@@ -193,6 +194,17 @@ jobs:
                   json.dump(cm, open(codex_path, 'w'), indent=2)
                   open(codex_path, 'a').write('\n')
                   print(f"   synced {codex_path} -> {new}")
+
+              # 2c. Regenerate the Kiro POWER.md from the now-bumped
+              # SKILL.md (only if the plugin ships one - it needs a
+              # .codex-plugin/plugin.json for displayName/keywords). The
+              # commit step stages all of plugins/, so it lands in the
+              # release commit + tag, same as SKILL.md/codex.
+              if os.path.isfile(os.path.join(source, 'POWER.md')):
+                  subprocess.run(
+                      ['python3', '.github/scripts/build_power.py', source],
+                      check=True)
+                  print(f"   regenerated {source}/POWER.md -> {new}")
 
               # 3. plugins/<plugin>/CHANGELOG.md entry.
               # Markdownlint-clean and idempotent: a stable `# Changelog`
