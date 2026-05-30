@@ -4,7 +4,7 @@ displayName: "Code Intelligence"
 description: "Use when navigating or refactoring code with a language server - choosing between semantic (LSP), exact-text (rg), and fuzzy/semantic search; anchoring LSP calls by position; gating degraded results; and disclosing tool substitutions, in any language."
 keywords: ["code-intelligence", "code-navigation", "language-server", "lsp", "refactoring", "search-precedence", "tool-disclosure"]
 author: "Anton Babenko"
-version: 0.4.1
+version: 0.5.0
 ---
 
 <!-- GENERATED FILE - DO NOT EDIT. Source: plugins/code-intelligence/skills/code-intelligence/SKILL.md. Regenerate: python3 .github/scripts/build_power.py plugins/code-intelligence. CI-owned (version sync), like .codex-plugin/plugin.json. -->

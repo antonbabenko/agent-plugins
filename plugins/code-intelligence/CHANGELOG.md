@@ -2,6 +2,12 @@
 
 All notable changes to the `code-intelligence` plugin are documented here. This file is managed by the per-plugin release pipeline; entries are prepended on release.
 
+## code-intelligence-v0.5.0 (2026-05-30) ([compare](https://github.com/antonbabenko/agent-plugins/compare/code-intelligence-v0.4.1...code-intelligence-v0.5.0))
+
+### Features
+
+* Add Kiro Power support with POWER.md generation and manifest sync (#17) (5c5c74d)
+
 ## code-intelligence-v0.4.1 (2026-05-17) ([compare](https://github.com/antonbabenko/agent-plugins/compare/code-intelligence-v0.3.1...code-intelligence-v0.4.1))
 
 ### Bug Fixes
