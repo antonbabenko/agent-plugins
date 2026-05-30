@@ -30,11 +30,11 @@
       "category": "Development"
     },
     {
-      "name": "claude-delegator",
+      "name": "deliberation",
       "source": {
         "source": "url",
-        "url": "git@github.com:antonbabenko/claude-delegator.git",
-        "ref": "v1.18.0"
+        "url": "git@github.com:antonbabenko/deliberation.git",
+        "ref": "v2.0.0"
       },
       "policy": {
         "installation": "AVAILABLE",
