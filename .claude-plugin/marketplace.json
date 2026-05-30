@@ -51,29 +51,32 @@
       "version": "0.5.0"
     },
     {
-      "name": "claude-delegator",
+      "name": "deliberation",
       "source": {
         "source": "github",
-        "repo": "antonbabenko/claude-delegator",
-        "ref": "v1.18.0"
+        "repo": "antonbabenko/deliberation",
+        "ref": "v2.0.0"
       },
-      "description": "Use when you want a delegated second opinion or implementation from GPT (Codex), Gemini, or Grok (xAI) - seven expert subagents (Architect, Plan Reviewer, Scope Analyst, Code Reviewer, Security Analyst, Researcher, Debugger) and bundled ask-gpt/ask-gemini/ask-grok/ask-all/consensus commands, advisory (read-only) or implementation (write; Grok is advisory-only).",
+      "description": "Use when you want a delegated second opinion or implementation from GPT (Codex), Gemini, Grok (xAI), or OpenRouter (config-driven, 400+ models) - seven expert subagents (Architect, Plan Reviewer, Scope Analyst, Code Reviewer, Security Analyst, Researcher, Debugger) and bundled ask-gpt/ask-gemini/ask-grok/ask-openrouter/ask-all/consensus commands, advisory (read-only) or implementation (write; Grok and OpenRouter are advisory-only).",
       "category": "development",
       "keywords": [
         "delegation",
         "mcp",
         "codex",
         "gpt",
+        "openai",
         "gemini",
+        "google",
         "grok",
         "xai",
+        "openrouter",
         "experts",
         "subagents",
         "orchestration",
         "code-review",
         "architecture"
       ],
-      "version": "1.18.0"
+      "version": "2.0.0"
     }
   ]
 }
