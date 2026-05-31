@@ -32,7 +32,7 @@ npx skills add https://github.com/antonbabenko/terraform-skill
 
 /plugin install code-intelligence@antonbabenko
 /plugin install terraform-skill@antonbabenko
-/plugin install claude-delegator@antonbabenko
+/plugin install deliberation@antonbabenko
 ```
 
 ### Codex
@@ -42,7 +42,7 @@ codex plugin marketplace add antonbabenko/agent-plugins
 ```
 
 Then run `codex`, open `/plugins`, select **Agent Plugins**, and install
-`code-intelligence`, `terraform-skill`, or `claude-delegator`.
+`code-intelligence`, `terraform-skill`, or `deliberation`.
 
 For other hosts, expand below.
 
@@ -233,12 +233,13 @@ Try:
 Source and detail: [github.com/antonbabenko/terraform-skill](https://github.com/antonbabenko/terraform-skill).
 The full per-host install list lives in that repo's README.
 
-### [claude-delegator](https://github.com/antonbabenko/claude-delegator)
+### [deliberation](https://github.com/antonbabenko/deliberation)
 
-> Gives the agent five GPT (Codex), Gemini, and Grok (xAI) expert subagents - it
-> delegates the hard call (architecture, plan review, scope, code review,
-> security) instead of guessing alone, and synthesizes the result rather than
-> pasting it raw.
+> Gives the agent seven expert subagents - Architect, Plan Reviewer, Scope
+> Analyst, Code Reviewer, Security Analyst, Researcher, Debugger - backed by GPT
+> (Codex), Gemini, Grok (xAI), or OpenRouter. It delegates the hard call
+> (architecture, plan review, scope, code review, security) instead of guessing
+> alone, and synthesizes the result rather than pasting it raw.
 
 **tldr** - what changes with the plugin:
 
@@ -246,35 +247,36 @@ The full per-host install list lives in that repo's README.
 |--------|--------------------|-----------------|
 | Is this auth flow secure? | One model's single take | Security Analyst expert reviews; verdict synthesized, not raw |
 | Review this migration plan | Self-review, same blind spots | Plan Reviewer expert validates before you execute |
-| Get GPT, Gemini, and Grok to agree on this design | Manual back-and-forth | `consensus` runs an arbiter-mediated GPT + Gemini + Grok + Claude loop to a signed-off plan |
+| Get GPT, Gemini, Grok, and OpenRouter to agree on this design | Manual back-and-forth | `consensus` runs an arbiter-mediated GPT + Gemini + Grok + OpenRouter + Claude loop to a signed-off plan |
 
 Each expert runs advisory (read-only) or implementation (`workspace-write`).
 
 ```bash
-/plugin install claude-delegator@antonbabenko
-/claude-delegator:setup
+/plugin install deliberation@antonbabenko
+/deliberation:setup
 ```
 
-Requires at least one provider: [Codex CLI](https://github.com/openai/codex), [~~Gemini~~ Antigravity CLI](https://antigravity.google/docs/gcli-migration), or [Grok (xAI)](https://docs.x.ai/overview); `/setup` guides you through it. Grok is advisory-only (it reviews and votes but cannot change files and write code).
+Requires at least one provider: [Codex CLI](https://github.com/openai/codex), [~~Gemini~~ Antigravity CLI](https://antigravity.google/docs/gcli-migration), [Grok (xAI)](https://docs.x.ai/overview), or [OpenRouter](https://openrouter.ai) (config-driven, 400+ models); `/setup` guides you through it. Grok and OpenRouter are advisory-only (they review and vote but cannot change files and write code).
 
 Bundled commands:
 
 ### 🔥 Magic happens here 🔥
 
-- `/claude-delegator:consensus` - arbiter-mediated GPT + Gemini + Grok + Claude convergence loop. Relentlessly arguing, as if they have nothing else to do!
+- `/deliberation:consensus` - arbiter-mediated GPT + Gemini + Grok + OpenRouter + Claude convergence loop. Relentlessly arguing, as if they have nothing else to do!
 
 ### Ask once
 
-- `/claude-delegator:ask-gpt` - one-shot GPT (Codex) second opinion
-- `/claude-delegator:ask-gemini` - one-shot Gemini second opinion
-- `/claude-delegator:ask-grok` - one-shot Grok (xAI) second opinion (advisory-only)
-- `/claude-delegator:ask-all` - GPT + Gemini + Grok in parallel, synthesized
+- `/deliberation:ask-gpt` - one-shot GPT (Codex) second opinion
+- `/deliberation:ask-gemini` - one-shot Gemini second opinion
+- `/deliberation:ask-grok` - one-shot Grok (xAI) second opinion (advisory-only)
+- `/deliberation:ask-openrouter` - one-shot OpenRouter second opinion (advisory-only, config-driven model)
+- `/deliberation:ask-all` - GPT + Gemini + Grok + OpenRouter in parallel, synthesized
 
 ### Setup and Maintainance
 
-- `/claude-delegator:setup` - configure Codex/Gemini/Grok MCP servers + rules
-- `/claude-delegator:uninstall` - remove MCP config, rules, and aliases
-- `/claude-delegator:grok-files` - list or prune Grok-uploaded files (storage cleanup)
+- `/deliberation:setup` - configure Codex/Gemini/Grok/OpenRouter MCP servers + rules
+- `/deliberation:uninstall` - remove MCP config, rules, and aliases
+- `/deliberation:grok-files` - list or prune Grok-uploaded files (storage cleanup)
 
 Use `consensus` when the plan must be right - the external models vote and
 Claude adjudicates to agreement, ideal for high-stakes planning and design. Use
@@ -282,10 +284,10 @@ the `ask-*` commands for a quicker single or parallel opinion when you just want
 a fast second take.
 
 `/setup` can also install short aliases (`/ask-gpt`, `/ask-gemini`, `/ask-grok`,
-`/ask-all`, `/consensus`, `/grok-files`); opt-in, never overwrites an existing
-command.
+`/ask-openrouter`, `/ask-all`, `/consensus`, `/grok-files`); opt-in, never
+overwrites an existing command.
 
-Source and detail: [github.com/antonbabenko/claude-delegator](https://github.com/antonbabenko/claude-delegator).
+Source and detail: [github.com/antonbabenko/deliberation](https://github.com/antonbabenko/deliberation).
 
 ## Why these plugins
 
