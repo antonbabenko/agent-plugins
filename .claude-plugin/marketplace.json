@@ -15,7 +15,7 @@
       "source": {
         "source": "github",
         "repo": "antonbabenko/terraform-skill",
-        "ref": "v1.17.0"
+        "ref": "v1.17.1"
       },
       "description": "Use when writing, reviewing, or debugging Terraform/OpenTofu modules, tests, CI, scans, or state ops - diagnoses failure mode (identity churn, secrets, blast radius, CI drift, state corruption) with version-aware guards.",
       "category": "development",
@@ -32,7 +32,7 @@
         "lsp",
         "terraform-ls"
       ],
-      "version": "1.17.0"
+      "version": "1.17.1"
     },
     {
       "name": "code-intelligence",
