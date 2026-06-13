@@ -118,12 +118,13 @@ Update with `git pull` in each clone.
 </details>
 
 <details>
-<summary>Antigravity</summary>
+<summary>Antigravity/Antigravity IDE/Antigravity CLI</summary>
 
 ```bash
-git clone https://github.com/antonbabenko/terraform-skill.git ~/.antigravity/skills/terraform-skill
+git clone https://github.com/antonbabenko/terraform-skill.git
+ln -s "$(pwd)/terraform-skill/skills/terraform-skill" ~/.gemini/config/skills/terraform-skill
 git clone https://github.com/antonbabenko/agent-plugins.git
-ln -s "$(pwd)/agent-plugins/plugins/code-intelligence" ~/.antigravity/skills/code-intelligence
+ln -s "$(pwd)/agent-plugins/plugins/code-intelligence/skills/code-intelligence" ~/.gemini/config/skills/code-intelligence
 ```
 
 Update with `git pull` in each clone.
