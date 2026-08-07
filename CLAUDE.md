@@ -192,7 +192,7 @@ qualifying commits then sets the bump:
 
 | Qualifying commit type | Effect |
 |------------------------|--------|
-| `feat!:` / `feat(<plugin>)!:` / body `BREAKING CHANGE:` | Major bump |
+| `<type>!:` / `<type>(<plugin>)!:` / `BREAKING CHANGE:` or `BREAKING-CHANGE:` footer | Major bump |
 | `feat: ...` (or scoped) | Minor bump |
 | `fix: ...`, `perf:`, `refactor:` (or scoped) | Patch bump |
 | `chore`/`docs`/`ci`/`test`/`style`, or no conventional type | No bump |
