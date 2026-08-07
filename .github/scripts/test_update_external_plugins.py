@@ -73,6 +73,23 @@ class ExternalPluginUpdaterTests(unittest.TestCase):
         finally:
             os.chdir(old_cwd)
 
+    def _manifest_state(self, root: Path) -> tuple[str, str, str, str]:
+        claude = json.loads(
+            (root / ".claude-plugin" / "marketplace.json").read_text()
+        )
+        agents = json.loads(
+            (root / ".agents" / "plugins" / "marketplace.json").read_text()
+        )
+        kiro = json.loads(
+            (root / ".kiro" / "plugins" / "marketplace.json").read_text()
+        )
+        return (
+            claude["plugins"][0]["source"]["ref"],
+            claude["plugins"][0]["version"],
+            agents["plugins"][0]["source"]["ref"],
+            kiro["plugins"][0]["source"]["ref"],
+        )
+
     def test_refuses_automatic_downgrade(self):
         with tempfile.TemporaryDirectory() as tmp:
             root = Path(tmp)
@@ -82,11 +99,10 @@ class ExternalPluginUpdaterTests(unittest.TestCase):
                 self._run_main(root, latest_version="1.9.0", latest_tag="v1.9.0")
 
             self.assertEqual(exc.exception.code, 1)
-            marketplace = json.loads(
-                (root / ".claude-plugin" / "marketplace.json").read_text()
+            self.assertEqual(
+                self._manifest_state(root),
+                ("v2.0.0", "2.0.0", "v2.0.0", "v2.0.0"),
             )
-            self.assertEqual(marketplace["plugins"][0]["source"]["ref"], "v2.0.0")
-            self.assertEqual(marketplace["plugins"][0]["version"], "2.0.0")
 
     def test_allows_upgrade(self):
         with tempfile.TemporaryDirectory() as tmp:
@@ -98,11 +114,10 @@ class ExternalPluginUpdaterTests(unittest.TestCase):
             )
 
             self.assertEqual(result, 0)
-            marketplace = json.loads(
-                (root / ".claude-plugin" / "marketplace.json").read_text()
+            self.assertEqual(
+                self._manifest_state(root),
+                ("v2.0.0", "2.0.0", "v2.0.0", "v2.0.0"),
             )
-            self.assertEqual(marketplace["plugins"][0]["source"]["ref"], "v2.0.0")
-            self.assertEqual(marketplace["plugins"][0]["version"], "2.0.0")
 
 
 if __name__ == "__main__":
