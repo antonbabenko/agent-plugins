@@ -45,10 +45,12 @@ standards, and the per-plugin release model before contributing.
    workflow (`.github/workflows/update-external-plugins.yml`) auto-discovers
    every external entry, resolves the latest upstream release, and opens a
    reviewable `chore(external-plugins): ...` PR that updates `source.ref` in
-   all three manifests and the mirrored `version`. Override defaults
-   (prereleases, tag pattern, tags-vs-releases) per plugin in
-   `.github/external-plugin-updates.json`. CI cross-checks the three manifests
-   stay in sync.
+   all three manifests and the mirrored `version`. The updater refuses an
+   automatic downgrade if the pinned release is newer than the latest eligible
+   upstream release. Override defaults (prereleases, tag pattern,
+   tags-vs-releases) per plugin in `.github/external-plugin-updates.json`. CI
+   cross-checks the three manifests stay in sync and rejects stale external
+   entries left behind in either mirror.
 
 **Inline** (content lives here):
 
@@ -86,7 +88,7 @@ PR), not by hand.
 |------------------------|--------|
 | `feat: ...` (or scoped) | minor bump |
 | `fix:` / `perf:` / `refactor:` (or scoped) | patch bump |
-| `feat!:` or `BREAKING CHANGE:` in body | major bump |
+| `<type>!:` / `<type>(<plugin>)!:` or `BREAKING CHANGE:` / `BREAKING-CHANGE:` footer | major bump |
 | `chore`/`docs`/`ci`/`test`, or no conventional type | no release |
 | touches only `tests/`, `CHANGELOG.md`, or no plugin content | no release |
 
@@ -96,8 +98,10 @@ plugins bumps both.
 
 ## Testing
 
-Tests are **required**, not optional. This is documentation, not code, so
-"tests" are behavioral regression scenarios run against a real agent host.
+Tests are **required**, not optional. Plugin content is executable
+documentation, so its behavior is tested with regression scenarios against a
+real agent host. Repository automation under `.github/scripts/` also has
+stdlib unit tests run by `validate.yml`.
 
 **Every inline plugin must ship `plugins/<plugin>/tests/baseline-scenarios.md`**
 with this structure (CI fails the PR if it is missing or incomplete):
@@ -136,13 +140,14 @@ example - copy its shape.
 
 ## CI
 
-`validate.yml` runs on every PR touching `plugins/**`, `.claude-plugin/**`,
-`.agents/plugins/**`, `.kiro/plugins/**`, or `.github/scripts/**`:
-frontmatter, size, **inline plugin tests present** (baseline-scenarios.md with
-scenarios + run protocol + success criteria), manifest validity, manifest <->
-SKILL.md <-> `.codex-plugin/plugin.json` version sync, **POWER.md (Kiro)
-regenerated and in sync**, **three-manifest external sync**
-(`.claude-plugin` <-> `.agents` <-> `.kiro`), broken links, and markdown lint.
+`validate.yml` runs on relevant plugin content, marketplace manifests,
+repository tooling/workflows, external-update policy, and contributor docs. It
+checks tooling unit tests, frontmatter, size, **inline plugin tests present**
+(baseline-scenarios.md with scenarios + run protocol + success criteria),
+manifest validity, manifest <-> SKILL.md <-> `.codex-plugin/plugin.json`
+version sync, **POWER.md (Kiro) regenerated and in sync**, **three-manifest
+external sync** (`.claude-plugin` <-> `.agents` <-> `.kiro`, including stale
+mirror detection), broken links, and markdown lint.
 
 Every step in **Validate Skill Files** is blocking - markdown lint included
 (no `continue-on-error`). One red step fails the whole check.
