@@ -26,6 +26,27 @@ import re
 import sys
 
 
+def decode_simple_yaml_scalar(value, field, skill_path):
+    """Decode the single-line quoted scalar forms accepted by SKILL frontmatter."""
+    value = value.strip()
+    if len(value) >= 2 and value[0] == value[-1] == '"':
+        try:
+            decoded = json.loads(value)
+        except json.JSONDecodeError as exc:
+            raise SystemExit(
+                f"build_power: {skill_path} frontmatter {field} has invalid "
+                f"double-quoted scalar: {exc.msg}"
+            ) from exc
+        if not isinstance(decoded, str):
+            raise SystemExit(
+                f"build_power: {skill_path} frontmatter {field} must be a string"
+            )
+        return decoded
+    if len(value) >= 2 and value[0] == value[-1] == "'":
+        return value[1:-1].replace("''", "'")
+    return value
+
+
 def parse_frontmatter(skill_path):
     src = open(skill_path, encoding="utf-8").read()
     if not src.startswith("---"):
@@ -38,19 +59,23 @@ def parse_frontmatter(skill_path):
         line = raw.rstrip("\r")
         m = re.match(r"^name:\s*(.+?)\s*$", line)
         if m:
-            out["name"] = m.group(1)
+            out["name"] = decode_simple_yaml_scalar(
+                m.group(1), "name", skill_path)
             continue
         m = re.match(r"^description:\s*(.+?)\s*$", line)
         if m:
-            out["description"] = m.group(1)
+            out["description"] = decode_simple_yaml_scalar(
+                m.group(1), "description", skill_path)
             continue
         m = re.match(r"^\s+author:\s*(.+?)\s*$", line)
         if m:
-            out["author"] = m.group(1)
+            out["author"] = decode_simple_yaml_scalar(
+                m.group(1), "author", skill_path)
             continue
         m = re.match(r"^\s+version:\s*(.+?)\s*$", line)
         if m:
-            out["version"] = m.group(1)
+            out["version"] = decode_simple_yaml_scalar(
+                m.group(1), "version", skill_path)
             continue
     for k in ("name", "description", "author", "version"):
         if not out.get(k):
