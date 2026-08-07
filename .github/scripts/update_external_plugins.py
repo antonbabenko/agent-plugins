@@ -201,6 +201,15 @@ def main() -> int:
             print(f"  {name}: up to date ({tag})")
             continue
 
+        pat = re.compile(cfg["tagPattern"])
+        cur_ver = semver(cur_ref, pat)
+        next_ver = semver(tag, pat)
+        if cur_ver is not None and next_ver is not None and cur_ver > next_ver:
+            fail(
+                f"{name}: pinned ref {cur_ref} is newer than latest eligible "
+                f"{tag}; refusing automatic downgrade"
+            )
+
         changed.append((name, repo, cur_ref, tag))
         if args.dry_run:
             continue
