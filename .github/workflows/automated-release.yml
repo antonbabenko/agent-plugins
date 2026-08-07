@@ -66,6 +66,9 @@ jobs:
           import sys
           from datetime import date
 
+          sys.path.insert(0, '.github/scripts')
+          from release_helpers import has_breaking_change_footer
+
           def run(*args):
               return subprocess.run(
                   args, check=True, capture_output=True, text=True).stdout
@@ -146,7 +149,7 @@ jobs:
                   short = chash[:7]
                   desc = m.group('desc').strip()
                   ctype = m.group('type')
-                  if m.group('bang') or 'BREAKING CHANGE' in body:
+                  if m.group('bang') or has_breaking_change_footer(body):
                       breaking = True
                   if ctype == 'feat':
                       feats.append((short, desc))
