@@ -17,15 +17,17 @@
 
 ## Conventional Commit
 
-Releases are per-plugin and driven by the commit scope. The squash/merge
-commit subject must be scoped to the plugin:
+Releases are per-plugin. A typed squash/merge commit qualifies for an inline
+plugin when it changes release-worthy content under `plugins/<plugin>/`, or
+when its subject is explicitly scoped to that plugin. Scope is useful for
+clarity but is not required when the changed paths identify the plugin.
 
-- `feat(<plugin>): ...` -> minor bump for that plugin
-- `fix(<plugin>): ...` -> patch bump
-- `feat(<plugin>)!: ...` or `BREAKING CHANGE:` in body -> major bump
-- No plugin scope -> no release
+- `feat: ...` (or `feat(<plugin>): ...`) -> minor bump for affected plugin(s)
+- `fix: ...`, `perf: ...`, or `refactor: ...` (scoped or unscoped) -> patch bump
+- `feat!:` / `feat(<plugin>)!:` or a valid `BREAKING CHANGE:` footer -> major bump
+- `chore` / `docs` / `ci` / `test`, or changes limited to tests/CHANGELOG -> no release
 
-**Planned commit subject:** `____(________): ________________`
+**Planned commit subject:** `type(scope): description`
 
 ## Testing Evidence (REQUIRED for content changes)
 
@@ -75,7 +77,7 @@ Improvements: [what improved / patterns now followed]
 External plugin (referenced repo):
 - [ ] `plugins[]` entry with `source: { source: github, repo: owner/repo, ref: vX.Y.Z }`
 - [ ] No local content / CHANGELOG / scoped-commit release
-- [ ] `version` (if set) is a manual mirror of `source.ref`
+- [ ] `version` (if set) mirrors `source.ref`; the external updater keeps it in sync
 
 Inline plugin (content here):
 - [ ] `plugins[]` entry with `source: ./plugins/<plugin>`
@@ -87,6 +89,7 @@ Inline plugin (content here):
 
 <!-- Runs in CI; check locally too (see CLAUDE.md) -->
 
+- [ ] Tooling unit tests pass (when `.github/scripts/**` changes)
 - [ ] Frontmatter validation passes
 - [ ] Manifest <-> SKILL.md version sync passes
 - [ ] No broken internal links
@@ -103,5 +106,5 @@ Relates to #
 
 - [ ] Testing evidence convincing (baseline -> improved)
 - [ ] Standards compliance verified
-- [ ] Squash with a correctly scoped conventional commit subject
+- [ ] Squash with a correctly typed conventional commit subject
 - [ ] Confirm the resulting per-plugin version bump is intended
