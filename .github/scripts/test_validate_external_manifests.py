@@ -4,11 +4,13 @@
 from __future__ import annotations
 
 import importlib.util
+import json
 from pathlib import Path
 import unittest
 
 
 SCRIPT_PATH = Path(__file__).with_name("validate_external_manifests.py")
+REPO_ROOT = Path(__file__).resolve().parents[2]
 
 
 def load_validator():
@@ -64,6 +66,16 @@ def mirror_manifest(ref: str = "v1.2.3", *, extra: bool = False) -> dict:
 
 
 class ExternalManifestSyncTests(unittest.TestCase):
+    def test_repository_manifests_are_in_sync(self):
+        validator = load_validator()
+        with open(REPO_ROOT / validator.CLAUDE_MANIFEST, encoding="utf-8") as handle:
+            claude = json.load(handle)
+        with open(REPO_ROOT / validator.AGENTS_MANIFEST, encoding="utf-8") as handle:
+            agents = json.load(handle)
+        with open(REPO_ROOT / validator.KIRO_MANIFEST, encoding="utf-8") as handle:
+            kiro = json.load(handle)
+        self.assertEqual(validator.validate_manifests(claude, agents, kiro), [])
+
     def test_accepts_matching_external_entries(self):
         validator = load_validator()
         self.assertEqual(
