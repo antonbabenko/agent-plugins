@@ -24,7 +24,8 @@ clarity but is not required when the changed paths identify the plugin.
 
 - `feat: ...` (or `feat(<plugin>): ...`) -> minor bump for affected plugin(s)
 - `fix: ...`, `perf: ...`, or `refactor: ...` (scoped or unscoped) -> patch bump
-- `feat!:` / `feat(<plugin>)!:` or a valid `BREAKING CHANGE:` footer -> major bump
+- `type!:` / `type(<plugin>)!:` or a valid `BREAKING CHANGE:` /
+  `BREAKING-CHANGE:` footer -> major bump
 - `chore` / `docs` / `ci` / `test`, or changes limited to tests/CHANGELOG -> no release
 
 **Planned commit subject:** `type(scope): description`
