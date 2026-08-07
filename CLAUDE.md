@@ -57,7 +57,7 @@ sources, auto-clones + caches the referenced repo (see
 | Content | Upstream repo | `plugins/<plugin>/` here |
 | Releases | Upstream repo's own pipeline | This repo's per-plugin pipeline |
 | Update here | Bump `source.ref` + mirrored `version` | Push a scoped conventional commit |
-| `version` field | Optional, manual mirror of `source.ref` (NOT CI-managed) | Required, CI-managed, must equal SKILL.md `metadata.version` |
+| `version` field | Optional mirror of `source.ref`; the updater keeps it in sync when present | Required, CI-managed, must equal SKILL.md `metadata.version` |
 
 `terraform-skill` is external: `antonbabenko/terraform-skill`, pinned by
 `source.ref`. Its content and tags (`vX.Y.Z`) live in that repo. Pins are
@@ -90,7 +90,7 @@ drift). Never hand-edit it — edit `SKILL.md`/`references/` and run
 1. Add to `.claude-plugin/marketplace.json` `plugins[]`: `name`,
    `source: { "source": "github", "repo": "owner/repo", "ref": "vX.Y.Z" }`,
    `description`, optional `category` / `keywords`, optional `version`
-   (mirror of the ref, manual).
+   (mirror of the ref; the external-plugin updater keeps it in sync).
 2. Mirror the entry into `.agents/plugins/marketplace.json` **and**
    `.kiro/plugins/marketplace.json` (same `source.url`/`ref`; no `version`
    field). `validate.yml` fails if the three manifests drift.
@@ -121,25 +121,33 @@ drift). Never hand-edit it — edit `SKILL.md`/`references/` and run
 
 ## Development Workflow
 
-**This is documentation, not code.** No build, no compiled tests.
+Inline plugins are executable documentation; repository automation is Python
+and GitHub Actions. There is no application build.
 
 ### Validation
 
-CI runs on PRs touching `plugins/**` or `.claude-plugin/**`. It validates every
-`plugins/*/skills/*/SKILL.md`. To check locally:
+CI runs on relevant plugin content, manifests, tooling/workflows, and
+contributor-documentation changes. It validates every
+`plugins/*/skills/*/SKILL.md` plus the repository automation. To check locally:
 
 ```bash
+# Tooling regression tests
+python3 -m unittest discover -s .github/scripts -p 'test_*.py' -v
+
 # Frontmatter + size, all skills
 for f in plugins/*/skills/*/SKILL.md; do
   echo "$f: $(wc -l < "$f") lines"
 done
 
-# Manifest <-> SKILL.md version sync
+# Manifest <-> SKILL.md version sync (inline plugins only)
 python3 -c "
 import json, yaml, os
 m = json.load(open('.claude-plugin/marketplace.json'))
 for p in m['plugins']:
-    src = p['source'].lstrip('./')
+    source = p.get('source')
+    if not isinstance(source, str):
+        continue
+    src = source.lstrip('./')
     sp = os.path.join(src, 'skills', p['name'], 'SKILL.md')
     fm = yaml.safe_load(open(sp).read().split('---', 2)[1])
     sv = (fm.get('metadata') or {}).get('version')
@@ -155,7 +163,8 @@ grep -oP '\[.*?\]\(references/.*?\.md.*?\)' SKILL.md references/*.md | \
 
 ### Testing Changes
 
-No automated suite. Manual flow:
+Tooling regression tests run automatically in `validate.yml`. Plugin behavior
+remains scenario-based and must be tested against a real agent host:
 
 1. Edit a `SKILL.md` or `references/*.md` file.
 2. Run that plugin's `tests/baseline-scenarios.md` per its
