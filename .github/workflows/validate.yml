@@ -8,6 +8,11 @@ on:
       - '.agents/plugins/**'
       - '.kiro/plugins/**'
       - '.github/scripts/**'
+      - '.github/workflows/**'
+      - '.github/external-plugin-updates.json'
+      - 'README.md'
+      - 'CONTRIBUTING.md'
+      - 'CLAUDE.md'
   push:
     branches: [master, main]
     paths:
@@ -16,6 +21,11 @@ on:
       - '.agents/plugins/**'
       - '.kiro/plugins/**'
       - '.github/scripts/**'
+      - '.github/workflows/**'
+      - '.github/external-plugin-updates.json'
+      - 'README.md'
+      - 'CONTRIBUTING.md'
+      - 'CLAUDE.md'
   workflow_dispatch:
 
 jobs:
@@ -34,6 +44,9 @@ jobs:
 
       - name: Install Dependencies
         run: pip install pyyaml
+
+      - name: Run tooling unit tests
+        run: python3 -m unittest discover -s .github/scripts -p 'test_*.py' -v
 
       - name: Validate inline SKILL.md files
         run: |
