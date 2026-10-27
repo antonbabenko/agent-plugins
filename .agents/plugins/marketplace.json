@@ -34,7 +34,7 @@
       "source": {
         "source": "url",
         "url": "git@github.com:antonbabenko/deliberation.git",
-        "ref": "v3.32.0"
+        "ref": "v4.0.0"
       },
       "policy": {
         "installation": "AVAILABLE",
