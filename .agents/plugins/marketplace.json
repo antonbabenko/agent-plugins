@@ -34,7 +34,7 @@
       "source": {
         "source": "url",
         "url": "git@github.com:antonbabenko/deliberation.git",
-        "ref": "v4.0.0"
+        "ref": "v4.1.1"
       },
       "policy": {
         "installation": "AVAILABLE",
@@ -47,7 +47,7 @@
       "source": {
         "source": "url",
         "url": "git@github.com:modulestf/modulestf.git",
-        "ref": "v0.1.0"
+        "ref": "v0.1.2"
       },
       "policy": {
         "installation": "AVAILABLE",
