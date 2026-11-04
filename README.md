@@ -23,6 +23,9 @@ npx skills add https://github.com/antonbabenko/agent-plugins
 
 # terraform-skill (its own repo)
 npx skills add https://github.com/antonbabenko/terraform-skill
+
+# modulestf (its own repo)
+npx skills add https://github.com/modulestf/modulestf
 ```
 
 ### Claude Code
@@ -33,6 +36,7 @@ npx skills add https://github.com/antonbabenko/terraform-skill
 /plugin install code-intelligence@antonbabenko
 /plugin install terraform-skill@antonbabenko
 /plugin install deliberation@antonbabenko
+/plugin install modulestf@antonbabenko
 ```
 
 ### Codex
@@ -42,7 +46,7 @@ codex plugin marketplace add antonbabenko/agent-plugins
 ```
 
 Then run `codex`, open `/plugins`, select **Agent Plugins**, and install
-`code-intelligence`, `terraform-skill`, or `deliberation`.
+`code-intelligence`, `terraform-skill`, `deliberation`, or `modulestf`.
 
 For other hosts, expand below.
 
@@ -289,6 +293,35 @@ a fast second take.
 overwrites an existing command.
 
 Source and detail: [github.com/antonbabenko/deliberation](https://github.com/antonbabenko/deliberation).
+
+### [modulestf](https://github.com/modulestf/modulestf)
+
+> Reviews a change to a reusable Terraform module rule by rule against a
+> written profile of the module family's rules (today
+> [terraform-aws-modules](https://github.com/terraform-aws-modules)): breaking
+> changes, provider schema coverage, and whether each addition belongs. Every
+> rule it could not check is listed, never counted as a pass.
+
+| Skill | Use it for |
+|-------|------------|
+| `terraform-module-pr-review` | A pull request or commit: one verdict and a comment to post, only after you confirm |
+| `terraform-module-reviewer` | A local diff or branch: findings only, no verdict |
+| `terraform-module-maintainer` | Applying findings, drafting replies to review comments, provider upgrades |
+| `change-scope` | Whether an addition belongs in the thing being changed, in any project |
+
+```bash
+/plugin install modulestf@antonbabenko
+brew install modulestf/tap/mtf-facts   # a pull request review needs it
+```
+
+Try:
+
+- `review terraform-aws-modules/terraform-aws-lambda#780`
+- `triage terraform-aws-modules/terraform-aws-vpc#1270`
+
+Also needs `gh` logged in as you and HashiCorp's
+[Terraform MCP server](https://github.com/hashicorp/terraform-mcp-server).
+Source and detail: [github.com/modulestf/modulestf](https://github.com/modulestf/modulestf).
 
 ## Why these plugins
 
