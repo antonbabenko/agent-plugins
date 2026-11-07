@@ -83,7 +83,7 @@
       "source": {
         "source": "github",
         "repo": "modulestf/modulestf",
-        "ref": "v0.4.0"
+        "ref": "v0.4.1"
       },
       "description": "Review and maintain reusable Terraform modules against a written profile of the module family's rules: pull request review with one verdict, findings-only review of a local change, and a maintainer skill that makes the change.",
       "category": "development",
@@ -95,7 +95,7 @@
         "pull-request-review",
         "iac"
       ],
-      "version": "0.4.0"
+      "version": "0.4.1"
     }
   ]
 }
