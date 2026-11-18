@@ -57,7 +57,7 @@
         "repo": "antonbabenko/deliberation",
         "ref": "v4.5.0"
       },
-      "description": "Use when you want a delegated second opinion or implementation from GPT (Codex), Gemini, Grok (xAI), or OpenRouter (config-driven, 400+ models) - seven expert subagents (Architect, Plan Reviewer, Scope Analyst, Code Reviewer, Security Analyst, Researcher, Debugger) and bundled ask-gpt/ask-gemini/ask-grok/ask-openrouter/ask-all/consensus commands, advisory (read-only) or implementation (write; Grok and OpenRouter are advisory-only).",
+      "description": "A second opinion from other models before you ship. Any host, any vendor, one verdict, and the disagreement stays visible. GPT, Gemini, Grok, local and OpenRouter models review your plan or diff independently; /consensus converges them to one verdict, and eight expert personas (Architect, Plan Reviewer, Scope Analyst, Code Reviewer, Security Analyst, Researcher, Debugger, Writing Editor) set the focus. Advisory by default; only Gemini can edit files, and only when asked.",
       "category": "development",
       "keywords": [
         "delegation",
@@ -74,7 +74,10 @@
         "subagents",
         "orchestration",
         "code-review",
-        "architecture"
+        "architecture",
+        "second-opinion",
+        "consensus",
+        "council"
       ],
       "version": "4.5.0"
     },
