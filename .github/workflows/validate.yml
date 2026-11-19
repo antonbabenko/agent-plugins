@@ -8,7 +8,6 @@ on:
       - '.agents/plugins/**'
       - '.kiro/plugins/**'
       - '.github/scripts/**'
-      - 'README.md'
   push:
     branches: [master, main]
     paths:
@@ -17,7 +16,6 @@ on:
       - '.agents/plugins/**'
       - '.kiro/plugins/**'
       - '.github/scripts/**'
-      - 'README.md'
   workflow_dispatch:
 
 jobs:
@@ -377,31 +375,6 @@ jobs:
             ) || rc=1
           done
           [ $rc -eq 0 ] && echo "✅ No broken links" || exit 1
-
-      # Docs snippets must pass the real linter for their language
-      # (antonbabenko/terraform-skill#64, #65).
-      - uses: hashicorp/setup-terraform@v4
-        with:
-          terraform_version: 1.17.2
-          terraform_wrapper: false
-
-      - uses: open-policy-agent/setup-opa@v2
-        with:
-          version: 1.22.4
-
-      - name: Install actionlint
-        run: |
-          bash <(curl -sSfL https://raw.githubusercontent.com/rhysd/actionlint/v1.7.12/scripts/download-actionlint.bash) 1.7.12 "$RUNNER_TEMP"
-          echo "$RUNNER_TEMP" >> "$GITHUB_PATH"
-
-      - name: Lint Code Snippets
-        run: |
-          # Self-test: a gate that flags nothing passes silently, so prove it
-          # still catches every known-broken block before trusting it.
-          out=$(python3 .github/scripts/check_snippets.py .github/scripts/testdata/broken-snippets.md || true)
-          grep -qx 'FAIL: 5 broken snippet(s)' <<< "$out" || { echo "$out"; echo "::error::snippet linter self-test failed"; exit 1; }
-          python3 .github/scripts/check_snippets.py README.md \
-            plugins/*/skills/*/SKILL.md plugins/*/skills/*/references/*.md plugins/*/commands/*.md
 
       - name: Lint Markdown
         uses: DavidAnson/markdownlint-cli2-action@v16

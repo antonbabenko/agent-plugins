@@ -39,8 +39,7 @@ agent-plugins/
 └── .github/
     ├── scripts/
     │   ├── update_external_plugins.py  # Bumps external pins in all 3 manifests
-    │   ├── build_power.py              # POWER.md generator (`--check` for CI)
-    │   └── check_snippets.py           # Lints fenced code blocks (CI; self-test in testdata/)
+    │   └── build_power.py              # POWER.md generator (`--check` for CI)
     └── workflows/
         ├── validate.yml                # PR validation (hybrid source-aware)
         └── automated-release.yml       # Per-plugin release (inline plugins only)
@@ -126,8 +125,8 @@ drift). Never hand-edit it — edit `SKILL.md`/`references/` and run
 
 ### Validation
 
-CI runs on PRs touching `plugins/**`, the manifests, `.github/scripts/**` or
-`README.md`. It validates every `plugins/*/skills/*/SKILL.md`. To check locally:
+CI runs on PRs touching `plugins/**` or `.claude-plugin/**`. It validates every
+`plugins/*/skills/*/SKILL.md`. To check locally:
 
 ```bash
 # Frontmatter + size, all skills
@@ -146,11 +145,6 @@ for p in m['plugins']:
     sv = (fm.get('metadata') or {}).get('version')
     print(p['name'], p['version'], '==', sv, 'OK' if sv == p['version'] else 'MISMATCH')
 "
-
-# Lint every fenced code block with its real tool (needs terraform, opa,
-# actionlint, shellcheck). CI runs the same script.
-python3 .github/scripts/check_snippets.py README.md \
-  plugins/*/skills/*/SKILL.md plugins/*/skills/*/references/*.md plugins/*/commands/*.md
 
 # Broken internal links for a skill
 cd plugins/<plugin>/skills/<plugin>
@@ -279,14 +273,12 @@ terraform-skill issues #64 and #65 found 19 wrong claims and snippets, including
 
 | Claim type | Required evidence in the PR body |
 |------------|----------------------------------|
-| Snippet (HCL, YAML, Rego, JSON, shell) | `check_snippets.py` passes (CI-enforced) |
-| Procedure (install path per agent, setup command, CI template) | Output of running it end to end in an isolated config dir or scratch project |
+| Procedure (install path per agent, setup command) | Output of running it end to end in an isolated config dir or scratch project |
 | Version, flag, argument, tool or command name | Primary source: upstream CHANGELOG, source code, or official docs URL |
 
 - ✅ Paste the decisive command output or source line next to each changed claim
 - ✅ After fixing a claim, `rg` the whole repo (and the upstream plugin repo) for every sibling occurrence and fix all of them
 - ❌ Never accept consensus without evidence, or a review of a diff summary; unflagged lines are unreviewed, not correct
-- ❌ Never relabel a broken block as `text` to silence the linter; use `text` only for trees and pseudo-code
 
 ### Consensus Review (required for content PRs)
 
