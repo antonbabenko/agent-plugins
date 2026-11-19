@@ -55,42 +55,48 @@ For other hosts, expand below.
 <details>
 <summary>Gemini CLI</summary>
 
-External plugin (`terraform-skill`) installs as an extension from its own repo:
-
 ```bash
-gemini extensions install https://github.com/antonbabenko/terraform-skill
+gemini skills install https://github.com/antonbabenko/terraform-skill --path skills/terraform-skill
+gemini skills install https://github.com/antonbabenko/agent-plugins --path plugins/code-intelligence/skills/code-intelligence
 ```
 
-The inline `code-intelligence` has no standalone repo. Clone the Agent Plugins
-repo and point Gemini at `plugins/code-intelligence` per Gemini's
-skill-discovery docs, or install it through Claude Code or Codex.
+Update by re-running the install commands (`gemini skills` has no `update`).
 </details>
 
 <details>
 <summary>Cursor</summary>
 
 ```bash
+mkdir -p ~/.cursor/skills
 # external plugin (terraform-skill) - from its own repo
-git clone https://github.com/antonbabenko/terraform-skill.git ~/.cursor/skills/terraform-skill
+git clone https://github.com/antonbabenko/terraform-skill.git
+cp -R terraform-skill/skills/terraform-skill ~/.cursor/skills/
 
 # inline plugin (code-intelligence) - from this repo
 git clone https://github.com/antonbabenko/agent-plugins.git
-ln -s "$(pwd)/agent-plugins/plugins/code-intelligence" ~/.cursor/skills/code-intelligence
+cp -R agent-plugins/plugins/code-intelligence/skills/code-intelligence ~/.cursor/skills/
 ```
 
-Cursor auto-discovers skills from `.agents/skills/` and `.cursor/skills/`.
+Cursor discovers `~/.cursor/skills/<name>/SKILL.md` and
+`.cursor/skills/<name>/SKILL.md`, one level deep, and may not follow symlinks:
+copy the skill directory, not the repo root. Update: `git pull` in each clone,
+`rm -rf` the installed skill directories, then re-run the `cp` commands.
 </details>
 
 <details>
 <summary>Copilot</summary>
 
 ```bash
-git clone https://github.com/antonbabenko/terraform-skill.git ~/.copilot/skills/terraform-skill
+mkdir -p ~/.copilot/skills
+git clone https://github.com/antonbabenko/terraform-skill.git
+ln -s "$(pwd)/terraform-skill/skills/terraform-skill" ~/.copilot/skills/terraform-skill
 git clone https://github.com/antonbabenko/agent-plugins.git
-ln -s "$(pwd)/agent-plugins/plugins/code-intelligence" ~/.copilot/skills/code-intelligence
+ln -s "$(pwd)/agent-plugins/plugins/code-intelligence/skills/code-intelligence" ~/.copilot/skills/code-intelligence
 ```
 
-Copilot auto-discovers skills from `.copilot/skills/`.
+Copilot discovers `~/.copilot/skills/<name>/SKILL.md` (user) and
+`.github/skills/`, `.agents/skills/`, `.claude/skills/` (project), one level
+deep: link the skill directory, not the repo or plugin root.
 </details>
 
 <details>
@@ -125,13 +131,16 @@ Update with `git pull` in each clone.
 <summary>Antigravity/Antigravity IDE/Antigravity CLI</summary>
 
 ```bash
+mkdir -p ~/.gemini/config/skills
 git clone https://github.com/antonbabenko/terraform-skill.git
-ln -s "$(pwd)/terraform-skill/skills/terraform-skill" ~/.gemini/config/skills/terraform-skill
+cp -R terraform-skill/skills/terraform-skill ~/.gemini/config/skills/
 git clone https://github.com/antonbabenko/agent-plugins.git
-ln -s "$(pwd)/agent-plugins/plugins/code-intelligence/skills/code-intelligence" ~/.gemini/config/skills/code-intelligence
+cp -R agent-plugins/plugins/code-intelligence/skills/code-intelligence ~/.gemini/config/skills/
 ```
 
-Update with `git pull` in each clone.
+Antigravity ignores symlinks that point outside the workspace, so copy the
+skill directories. Update: `git pull` in each clone, `rm -rf` the installed
+skill directories, then re-run the `cp` commands.
 </details>
 
 <details>
@@ -167,13 +176,16 @@ Kiro activates a power on keyword match (e.g. "terraform", "lsp", "rename").
 
 ```bash
 git clone https://github.com/antonbabenko/agent-plugins.git
-mkdir -p ~/.claude/plugins
-# inline plugins live under plugins/<name>/
-ln -s "$(pwd)/agent-plugins/plugins/code-intelligence" ~/.claude/plugins/code-intelligence
+# skill only, every session:
+mkdir -p ~/.claude/skills
+ln -s "$(pwd)/agent-plugins/plugins/code-intelligence/skills/code-intelligence" ~/.claude/skills/code-intelligence
+# or the whole plugin (skill + /code-intelligence:setup-code-intelligence) for one session:
+claude --plugin-dir ./agent-plugins/plugins/code-intelligence
 ```
 
-Claude Code autodiscovers `skills/<name>/SKILL.md` on next launch. Edits to the
-clone are picked up live. External plugins (e.g. `terraform-skill`) are not in
+Claude Code discovers personal skills in `~/.claude/skills/<name>/SKILL.md`;
+`~/.claude/plugins/` is not a discovery location. Edits to the clone are picked
+up live. External plugins (e.g. `terraform-skill`) are not in
 this repo - install them from their own repo instead.
 </details>
 

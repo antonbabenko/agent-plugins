@@ -1,7 +1,7 @@
 # Contributing to agent-plugins
 
 Thanks for helping improve these agent plugins. This repo is a multi-plugin
-marketplace; read [CLAUDE.md](CLAUDE.md) for the architecture, content
+marketplace; read [AGENTS.md](AGENTS.md) for the architecture, content
 standards, and the per-plugin release model before contributing.
 
 ## Quick Start
@@ -68,7 +68,7 @@ standards, and the per-plugin release model before contributing.
    generated `plugins/<plugin>/POWER.md`. It is CI-owned — never hand-edit;
    the release pipeline regenerates it and `validate.yml` `--check`s it.
 
-See CLAUDE.md "SKILL.md Architecture" and the "LLM Consumption Rules" for
+See AGENTS.md "SKILL.md Architecture" and the "LLM Consumption Rules" for
 content shape and token discipline.
 
 ## Commits & Releases
@@ -124,7 +124,7 @@ example - copy its shape.
 **Every content PR must:**
 
 1. First validate locally with the commands in
-   [CLAUDE.md](CLAUDE.md#validation).
+   [AGENTS.md](AGENTS.md#validation).
 2. Run the scenarios per that file's `## Running These Tests`: capture each
    prompt's output with the plugin OFF (baseline), then ON (target).
 3. Confirm every scenario meets its `### Success Criteria` and introduces no
