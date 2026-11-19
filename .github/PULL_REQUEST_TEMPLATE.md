@@ -9,7 +9,7 @@
 - [ ] New content (best practices, patterns, guidance)
 - [ ] Fix (correcting outdated or incorrect information)
 - [ ] Refactor (reorganizing or improving clarity)
-- [ ] Documentation (README, CONTRIBUTING, CLAUDE.md)
+- [ ] Documentation (README, CONTRIBUTING, AGENTS.md)
 - [ ] CI / tooling
 
 **Summary:**
@@ -53,6 +53,23 @@ Improvements: [what improved / patterns now followed]
 - [ ] Agent applies new patterns proactively
 - [ ] No new rationalizations introduced
 
+## Factual Evidence (REQUIRED for any changed claim, snippet or install step)
+
+<!-- Consensus needs evidence to check; it does not replace it. See "Factual Verification Rules" and "Consensus Review" in AGENTS.md. -->
+
+| Changed claim / snippet | Evidence (command output or primary-source URL) |
+|-------------------------|-------------------------------------------------|
+| | |
+
+- [ ] Every changed procedure (install path, setup command) shows its real output
+- [ ] Every version/flag/argument/tool-name claim cites a CHANGELOG, source, or official docs
+- [ ] Searched this repo and the upstream plugin repo (`rg`) for sibling occurrences and fixed them all
+- [ ] Ran `/deliberation:consensus` on the changed sections with the evidence above (or noted that a maintainer must run it)
+
+### Consensus Review
+
+<!-- Models used, final verdict, each objection and its resolution (fixed / rejected with evidence) -->
+
 ## Standards Compliance Checklist
 
 ### Frontmatter (if SKILL.md changed)
@@ -68,7 +85,7 @@ Improvements: [what improved / patterns now followed]
 - [ ] Detailed content lives in `references/*.md`
 - [ ] Tables over prose; imperative voice; DO vs DON'T where useful
 - [ ] Code examples complete and runnable
-- [ ] LLM Consumption Rules in CLAUDE.md followed
+- [ ] LLM Consumption Rules in AGENTS.md followed
 
 ### Marketplace / Structure
 
@@ -85,7 +102,7 @@ Inline plugin (content here):
 
 ## Validation
 
-<!-- Runs in CI; check locally too (see CLAUDE.md) -->
+<!-- Runs in CI; check locally too (see AGENTS.md) -->
 
 - [ ] Frontmatter validation passes
 - [ ] Manifest <-> SKILL.md version sync passes
