@@ -47,7 +47,7 @@
       "source": {
         "source": "url",
         "url": "git@github.com:modulestf/modulestf.git",
-        "ref": "v0.20.1"
+        "ref": "v0.20.2"
       },
       "policy": {
         "installation": "AVAILABLE",
